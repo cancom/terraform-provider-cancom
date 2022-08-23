@@ -1,0 +1,147 @@
+package iam
+
+import (
+	"context"
+
+	"github.com/cancom/terraform-provider-cancom/client"
+	client_iam "github.com/cancom/terraform-provider-cancom/client/services/iam"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+)
+
+func resourceServiceUser() *schema.Resource {
+	return &schema.Resource{
+		CreateContext: resourceServiceUserCreate,
+		ReadContext:   resourceServiceUserRead,
+		UpdateContext: resourceServiceUserUpdate,
+		DeleteContext: resourceServiceUserDelete,
+		Schema: map[string]*schema.Schema{
+			"name": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"group": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"principal": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"tenant": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"session_hash": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"created_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"created_by": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+		},
+	}
+}
+
+func resourceServiceUserCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	c := m.(*client.Client)
+
+	c.HostURL = c.ServiceURLs["iam"]
+
+	var diags diag.Diagnostics
+
+	userCreateRequest := client_iam.ServiceUserCreateRequest{
+		Name:        d.Get("name").(string),
+		Description: d.Get("description").(string),
+		Group:       d.Get("group").(string),
+	}
+
+	serviceUser, err := (*client_iam.Client)(c).CreateServiceUser(&userCreateRequest)
+	if err != nil {
+		return diag.Errorf("Error creating user: %s", err)
+	}
+
+	diags = append(diags, diag.Diagnostic{
+		Severity: diag.Warning,
+		Summary:  "ServiceUser Session Token - ATTENTION: YOU CAN ONLY SEE THIS ONCE",
+		Detail:   "Token: " + serviceUser.Session,
+	})
+
+	resourceServiceUserRead(ctx, d, m)
+
+	d.SetId(serviceUser.Principal)
+
+	return diags
+}
+
+func resourceServiceUserRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	c := m.(*client.Client)
+
+	c.HostURL = c.ServiceURLs["iam"]
+
+	var diags diag.Diagnostics
+
+	serviceUser, err := (*client_iam.Client)(c).GetServiceUser(d.Id())
+	if err != nil {
+		return diag.Errorf("Error reading user: %s", err)
+	}
+
+	d.Set("description", serviceUser.Description)
+	d.Set("group", serviceUser.Group)
+	d.Set("principal", serviceUser.Principal)
+	d.Set("tenant", serviceUser.Tenant)
+	d.Set("session_hash", serviceUser.SessionHash)
+	d.Set("created_at", serviceUser.CreatedAt)
+	d.Set("created_by", serviceUser.CreatedBy)
+
+	return diags
+}
+
+func resourceServiceUserUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	c := m.(*client.Client)
+
+	c.HostURL = c.ServiceURLs["iam"]
+
+	var diags diag.Diagnostics
+
+	serviceUserUpdateRequest := client_iam.ServiceUserUpdateRequest{
+		Description: d.Get("description").(string),
+		Group:       d.Get("group").(string),
+	}
+
+	err := (*client_iam.Client)(c).UpdateServiceUser(d.Id(), &serviceUserUpdateRequest)
+	if err != nil {
+		return diag.Errorf("Error updating user: %s", err)
+	}
+
+	resourceServiceUserRead(ctx, d, m)
+
+	return diags
+}
+
+func resourceServiceUserDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	c := m.(*client.Client)
+
+	c.HostURL = c.ServiceURLs["iam"]
+
+	var diags diag.Diagnostics
+
+	err := (*client_iam.Client)(c).DeleteServiceUser(d.Id())
+	if err != nil {
+		return diag.Errorf("Error deleting user: %s", err)
+	}
+
+	d.SetId("")
+
+	return diags
+}
