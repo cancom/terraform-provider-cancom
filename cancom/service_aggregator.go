@@ -1,4 +1,4 @@
-package mcm
+package cancom
 
 import (
 	"github.com/cancom/terraform-provider-cancom/cancom/services/base"

@@ -1,4 +1,4 @@
-package mcm
+package cancom
 
 import (
 	"context"
