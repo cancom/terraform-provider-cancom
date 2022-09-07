@@ -17,12 +17,14 @@ func resourceRecord() *schema.Resource {
 		DeleteContext: resourceRecordDelete,
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Description: "Name of the record",
+				Required:    true,
 			},
 			"type": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Description: "Type of the record (i.e. A, CNAME, ...)",
+				Required:    true,
 			},
 			"content": {
 				Type:     schema.TypeString,

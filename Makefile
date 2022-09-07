@@ -8,6 +8,11 @@ OS_ARCH=linux_amd64
 
 default: install
 
+BIN=$(CURDIR)/bin
+$(BIN)/%:
+	@echo "Installing tools from tools/tools.go"
+	@cat tools/tools.go | grep _ | awk -F '"' '{print $$2}' | GOBIN=$(BIN) xargs -tI {} go install {}
+
 build:
 	go build -o ${BINARY}
 
@@ -35,3 +40,7 @@ test:
 
 testacc: 
 	TF_ACC=1 go test $(TEST) -v $(TESTARGS) -timeout 120m
+
+
+generate-docs: $(BIN)/tfplugindocs
+	$(BIN)/tfplugindocs generate
