@@ -66,7 +66,7 @@ You can choose either a `profile` or a `custom` policy.
 
 - `policy` (Block List, Min: 1) (see [below for nested schema](#nestedblock--policy))
 - `principal` (String) The principal that the policy should be applied to. Can be applied to Users, ServiceUsers, and Roles.
-- `service` (String) The service name of the
+- `service` (String) The service name to provide permissions for.
 
 ### Read-Only
 

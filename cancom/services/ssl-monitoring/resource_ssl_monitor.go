@@ -45,7 +45,7 @@ func resourceSslMonitor() *schema.Resource {
 			"contact_email_cancom": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "CANCOM administrator that is responsible to exchange the certificate.",
+				Description: "CANCOM contact person that is responsible to exchange the certificate.",
 			},
 			"contact_email_customer": {
 				Type:        schema.TypeString,

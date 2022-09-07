@@ -27,7 +27,7 @@ resource "mcm_ssl_monitoring_ssl_monitor" "test_ssl" {
 
 ### Required
 
-- `contact_email_cancom` (String) CANCOM administrator that is responsible to exchange the certificate.
+- `contact_email_cancom` (String) CANCOM contact person that is responsible to exchange the certificate.
 - `domain_name` (String) Domain name to monitor. A domain name can only be monitored once.
 - `minimum_grade` (String) Alert grade. If the score falls below this score, an alarm is raised.
 - `protocol` (String) The protocol to be monitored, i.e. `http`, `postgresql`, `smtp`, ...

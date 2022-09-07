@@ -22,7 +22,7 @@ func resourcePolicy() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: "The service name of the ",
+				Description: "The service name to provide permissions for.",
 			},
 			"policy": {
 				Type:     schema.TypeList,
