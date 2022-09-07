@@ -20,6 +20,7 @@ func Provider() *schema.Provider {
 			"token": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				Description: "API Token retrieved from [https://portal.cancom.io](https://portal.cancom.io)",
 				DefaultFunc: schema.EnvDefaultFunc("CANCOM_TOKEN", nil),
 			},
 		},

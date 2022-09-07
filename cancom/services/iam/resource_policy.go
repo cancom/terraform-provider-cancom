@@ -19,9 +19,10 @@ func resourcePolicy() *schema.Resource {
 		DeleteContext: resourcePolicyDelete,
 		Schema: map[string]*schema.Schema{
 			"service": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: "The service name of the ",
 			},
 			"policy": {
 				Type:     schema.TypeList,
@@ -29,22 +30,25 @@ func resourcePolicy() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"profile": {
-							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
+							Description: "Can be set to `reader`, or `full-access`. Applies either reader or administrative access to the service.",
 						},
 						"custom": {
-							Type:     schema.TypeMap,
-							Optional: true,
-							ForceNew: true,
+							Type:        schema.TypeMap,
+							Optional:    true,
+							ForceNew:    true,
+							Description: "Provide a customized policy. If `custom` is set, it is preferred over `profile`",
 						},
 					},
 				},
 			},
 			"principal": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: "The principal that the policy should be applied to. Can be applied to Users, ServiceUsers, and Roles.",
 			},
 		},
 	}
