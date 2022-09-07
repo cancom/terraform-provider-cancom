@@ -2,7 +2,6 @@ package cancom
 
 import (
 	"github.com/cancom/terraform-provider-cancom/cancom/services/base"
-	carrental "github.com/cancom/terraform-provider-cancom/cancom/services/car-rental"
 	"github.com/cancom/terraform-provider-cancom/cancom/services/dns"
 	"github.com/cancom/terraform-provider-cancom/cancom/services/iam"
 	sslmonitoring "github.com/cancom/terraform-provider-cancom/cancom/services/ssl-monitoring"
@@ -12,7 +11,6 @@ import (
 func getAllProviders() []base.ProviderI {
 	return []base.ProviderI{
 		sslmonitoring.New(),
-		carrental.New(),
 		dns.New(),
 		iam.New(),
 	}

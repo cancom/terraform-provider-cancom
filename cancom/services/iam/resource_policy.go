@@ -127,16 +127,6 @@ func resourcePolicyDelete(ctx context.Context, d *schema.ResourceData, m interfa
 func getServicePolicyMapFromServiceType(serviceType string, profile string) map[string]string {
 	policyMap := map[string]string{}
 	switch serviceType {
-	case "car-rental":
-		policy := client_iam.CarrentalPolicy{}
-		switch profile {
-		case "reader":
-			policy.DescribeCarOrders = "*"
-			policy.ListCarOrders = "*"
-		case "full-access":
-			setEveryValueInStructTo(&policy, "*")
-		}
-		policyMap = createMapFromStruct(policy)
 	case "ssl-monitoring":
 		policy := client_iam.SslMonitoringPolicy{}
 		switch profile {
