@@ -23,15 +23,15 @@ resource "cancom_dns_record" {
 
 ### Required
 
-- `content` (String)
+- `content` (String) Target of the record
 - `name` (String) Name of the record
-- `ttl` (Number)
+- `ttl` (Number) TTL, if not set, defaults to the zones TTL
 - `type` (String) Type of the record (i.e. A, CNAME, ...)
-- `zone_name` (String)
+- `zone_name` (String) Zone that this record belongs to
 
 ### Read-Only
 
-- `comments` (String)
-- `id` (String) The ID of this resource.
-- `last_change_date` (String)
-- `zone_id` (String)
+- `comments` (String) You can optionally add comments to records to describe their intended usage
+- `id` (String) The uuid of the record
+- `last_change_date` (String) The date at which the record was last updated
+- `zone_id` (String) The uuid of the zone
