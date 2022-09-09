@@ -44,3 +44,6 @@ testacc:
 
 generate-docs: $(BIN)/tfplugindocs
 	$(BIN)/tfplugindocs generate
+
+validate-docs: $(BIN)/tfplugindocs
+	$(BIN)/tfplugindocs validate
