@@ -1,4 +1,5 @@
 TEST?=$$(go list ./... | grep -v 'vendor')
+GOFMT_FILES?=$$(find . -name '*.go' |grep -v vendor)
 HOSTNAME=cancom.de
 NAMESPACE=cancom
 NAME=cancom
@@ -41,9 +42,16 @@ test:
 testacc: 
 	TF_ACC=1 go test $(TEST) -v $(TESTARGS) -timeout 120m
 
+fmt:
+	gofmt -w $(GOFMT_FILES)
 
 generate-docs: $(BIN)/tfplugindocs
 	$(BIN)/tfplugindocs generate
 
 validate-docs: $(BIN)/tfplugindocs
 	$(BIN)/tfplugindocs validate
+
+clean:
+	rm -rf ./bin
+
+.PHONY: build testacc fmt validate-docs generate-docs clean
