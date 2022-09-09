@@ -27,7 +27,12 @@ The CANCOM provider can be configured over the following token sources:
 
 ### Environment Variables
 
-You can omit the token in the provider configuration by setting the `CANCOM_TOKEN` environment variable.
-If both `token` and `CANCOM_TOKEN` is set, we prefer the provided `token`.
+You can provide your API token via `CANCOM_TOKEN` environment variable, representing your CANCOM token.
+When using this method, you may omit the CANCOM provider block entirely.
+If both `token` and `CANCOM_TOKEN` is set, `token` will be used.
+
+Usage:
+
+{{ codefile "sh" "examples/index-env-var-tf-plan.txt" }}
 
 {{ .SchemaMarkdown | trimspace }}
