@@ -9,6 +9,35 @@ The CANCOM Terraform Provider allows managing resources within CANCOM Managed Se
 - Website: https://www.terraform.io
 - Documentation: https://registry.terraform.io/providers/cancom/cancom/latest/docs
 
+## Usage Example
+
+```hcl
+# 1. Specify the version of the CANCOM Provider to use
+terraform {
+  required_providers {
+    cancom = {
+      source = "cancom/cancom"
+      version = "0.0.1"
+    }
+  }
+}
+
+# 2. Configure the CANCOM Provider
+# You can provide your API token via CANCOM_TOKEN environment variable, representing your CANCOM token.
+# When using this method, you may omit the CANCOM provider block entirely.
+provider "cancom" {
+  token = "<token>"
+}
+
+# 3. Create a resource group
+resource "cancom_dns_record" "test" {
+  zone_name = "example.com"
+  name      = "test.example.com"
+  type      = "A"
+  content   = "127.0.0.1"
+}
+```
+
 Requirements
 ------------
 
