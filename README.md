@@ -9,6 +9,8 @@ The CANCOM Terraform Provider allows managing resources within CANCOM Managed Se
 - Website: https://www.terraform.io
 - Documentation: https://registry.terraform.io/providers/cancom/cancom/latest/docs
 
+_**Please note:** We take Terraform's security and our users' trust very seriously. If you believe you have found a security issue in the Terraform CANCOM Provider, please responsibly disclose it by contacting us at security@cancom.io._
+
 ## Usage Example
 
 ```hcl
