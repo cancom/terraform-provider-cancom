@@ -36,6 +36,30 @@ func NewClient(host, token *string) (*Client, error) {
 	return &c, nil
 }
 
+func NewClientOverrideEndpoints(host, token *string, endpoints map[string]string) (*Client, error) {
+	c := Client{
+		HTTPClient:  &http.Client{Timeout: 10 * time.Second},
+		ServiceURLs: map[string]string{},
+		HostURL:     HostURL,
+	}
+
+	if host != nil {
+		c.HostURL = *host
+	}
+
+	if token == nil {
+		return nil, fmt.Errorf("TOKEN IS REQUIRED")
+	}
+
+	for serviceName, endpoint := range endpoints {
+		c.ServiceURLs[serviceName] = endpoint
+	}
+
+	c.Token = *token
+
+	return &c, nil
+}
+
 func (c *Client) DoRequest(req *http.Request) ([]byte, error) {
 	token := c.Token
 
