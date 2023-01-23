@@ -2,8 +2,10 @@ package cancom
 
 import (
 	"github.com/cancom/terraform-provider-cancom/cancom/services/base"
+	"github.com/cancom/terraform-provider-cancom/cancom/services/cmsmgw"
 	"github.com/cancom/terraform-provider-cancom/cancom/services/dns"
 	"github.com/cancom/terraform-provider-cancom/cancom/services/iam"
+	"github.com/cancom/terraform-provider-cancom/cancom/services/ipam"
 	sslmonitoring "github.com/cancom/terraform-provider-cancom/cancom/services/ssl-monitoring"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -13,6 +15,8 @@ func getAllProviders() []base.ProviderI {
 		sslmonitoring.New(),
 		dns.New(),
 		iam.New(),
+		cmsmgw.New(),
+		ipam.New(),
 	}
 }
 
