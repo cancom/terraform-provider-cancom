@@ -23,6 +23,11 @@ func Provider() *schema.Provider {
 				Description: "API Token retrieved from [https://portal.cancom.io](https://portal.cancom.io)",
 				DefaultFunc: schema.EnvDefaultFunc("CANCOM_TOKEN", nil),
 			},
+			"service_registry": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("CANCOM_SERVICE_REGISTRY", "https://service-registry.portal.cancom.io"),
+			},
 		},
 		ResourcesMap:         ar,
 		DataSourcesMap:       map[string]*schema.Resource{},
@@ -32,12 +37,13 @@ func Provider() *schema.Provider {
 
 func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 	token := d.Get("token").(string)
+	service_registry := d.Get("service_registry").(string)
 
 	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics
 
 	if token != "" {
-		c, err := client.NewClient(nil, &token)
+		c, err := client.NewClient(&service_registry, &token)
 		if err != nil {
 			diags = append(diags, diag.Diagnostic{
 				Severity: diag.Error,
