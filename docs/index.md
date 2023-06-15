@@ -56,4 +56,5 @@ $ terraform plan
 
 ### Optional
 
+- `service_registry` (String) Service Registry to use for endpoint discovery
 - `token` (String) API Token retrieved from [https://portal.cancom.io](https://portal.cancom.io)

@@ -26,6 +26,7 @@ func Provider() *schema.Provider {
 			"service_registry": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				Description: "Service Registry to use for endpoint discovery",
 				DefaultFunc: schema.EnvDefaultFunc("CANCOM_SERVICE_REGISTRY", "https://service-registry.portal.cancom.io"),
 			},
 		},
@@ -57,7 +58,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 		if err != nil {
 			diags = append(diags, diag.Diagnostic{
 				Severity: diag.Error,
-				Summary:  "Failed to get services",
+				Summary:  "Failed to get services " + service_registry,
 				Detail:   err.Error(),
 			})
 			return nil, diags
