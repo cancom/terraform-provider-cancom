@@ -20,7 +20,7 @@ func New() Provider {
 		ServiceName: "ipam",
 		ProviderSchema: &schema.Provider{
 			ResourcesMap: map[string]*schema.Resource{
-				"supernet": resourceSupernet(),
+				"host": resourceHost(),
 			},
 		},
 	}
