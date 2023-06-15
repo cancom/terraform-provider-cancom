@@ -26,6 +26,7 @@ func Provider() *schema.Provider {
 			"service_registry": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				Description: "Service Registry to use for endpoint discovery",
 				DefaultFunc: schema.EnvDefaultFunc("CANCOM_SERVICE_REGISTRY", "https://service-registry.portal.cancom.io"),
 			},
 		},
