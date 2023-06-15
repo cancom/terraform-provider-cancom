@@ -55,8 +55,7 @@ func resourceHost() *schema.Resource {
 func resourceHostRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	c := m.(*client.Client)
 
-	//c.HostURL = c.ServiceURLs["ip-management"]
-	c.HostURL = "https://ip-management.portal.cancom.io"
+	c.HostURL = c.ServiceURLs["ip-management"]
 	var diags diag.Diagnostics
 
 	id := d.Id()
@@ -102,7 +101,7 @@ func resourceHostCreate(ctx context.Context, d *schema.ResourceData, m interface
 	d.Set("address", resp.Address)
 	d.SetId(id)
 
-	// resourceGatewayRead(ctx, d, m)
+	resourceHostRead(ctx, d, m)
 
 	return diags
 

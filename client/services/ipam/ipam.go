@@ -48,7 +48,7 @@ func (c *Client) CreateHost(host *HostCreateRequest) (*Host, error) {
 	n := rand.Intn(10) // n will be between 0 and 10
 	time.Sleep(time.Duration(n) * time.Second)
 
-	req, err := http.NewRequest("POST", fmt.Sprintf("%s/host/", c.HostURL), strings.NewReader(string(rb)))
+	req, err := http.NewRequest("POST", fmt.Sprintf("%s/v1/Hosts", c.HostURL), strings.NewReader(string(rb)))
 	if err != nil {
 		return nil, err
 	}
