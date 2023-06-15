@@ -12,7 +12,7 @@ import (
 type Client client.Client
 
 func (c *Client) GetService(id string) (*Service, error) {
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s/Services/%s", c.HostURL, id), nil)
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/v1/Services/%s", c.HostURL, id), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -32,7 +32,7 @@ func (c *Client) GetService(id string) (*Service, error) {
 }
 
 func (c *Client) GetAllServices() ([]Service, error) {
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s/Services", c.HostURL), nil)
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/v1/Services", c.HostURL), nil)
 	if err != nil {
 		return nil, err
 	}

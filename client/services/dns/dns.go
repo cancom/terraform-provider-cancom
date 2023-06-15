@@ -12,7 +12,7 @@ import (
 type Client client.Client
 
 func (c *Client) GetZone(id string) (*Zone, error) {
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s/Zones/%s", c.HostURL, id), nil)
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/v1/Zones/%s", c.HostURL, id), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -32,7 +32,7 @@ func (c *Client) GetZone(id string) (*Zone, error) {
 }
 
 func (c *Client) GetAllZones() ([]Zone, error) {
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s/Zones", c.HostURL), nil)
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/v1/Zones", c.HostURL), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -52,7 +52,7 @@ func (c *Client) GetAllZones() ([]Zone, error) {
 }
 
 func (c *Client) GetRecord(id string, zoneName string) (*Record, error) {
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s/Records/%s?zoneName=%s", c.HostURL, id, zoneName), nil)
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/v1/Records/%s?zoneName=%s", c.HostURL, id, zoneName), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -72,7 +72,7 @@ func (c *Client) GetRecord(id string, zoneName string) (*Record, error) {
 }
 
 func (c *Client) GetAllRecords() ([]Record, error) {
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s/Records", c.HostURL), nil)
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/v1/Records", c.HostURL), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -97,7 +97,7 @@ func (c *Client) CreateRecord(record *RecordCreateRequest) (*Record, error) {
 		return nil, err
 	}
 
-	req, err := http.NewRequest("POST", fmt.Sprintf("%s/Records", c.HostURL), bytes.NewBuffer(body))
+	req, err := http.NewRequest("POST", fmt.Sprintf("%s/v1/Records", c.HostURL), bytes.NewBuffer(body))
 	if err != nil {
 		return nil, err
 	}
@@ -122,7 +122,7 @@ func (c *Client) UpdateRecord(id string, record *RecordUpdateRequest) (*Record, 
 		return nil, err
 	}
 
-	req, err := http.NewRequest("PUT", fmt.Sprintf("%s/Records/%s", c.HostURL, id), bytes.NewBuffer(body))
+	req, err := http.NewRequest("PUT", fmt.Sprintf("%s/v1/Records/%s", c.HostURL, id), bytes.NewBuffer(body))
 	if err != nil {
 		return nil, err
 	}
@@ -142,7 +142,7 @@ func (c *Client) UpdateRecord(id string, record *RecordUpdateRequest) (*Record, 
 }
 
 func (c *Client) DeleteRecord(id string) error {
-	req, err := http.NewRequest("DELETE", fmt.Sprintf("%s/Records/%s", c.HostURL, id), nil)
+	req, err := http.NewRequest("DELETE", fmt.Sprintf("%s/v1/Records/%s", c.HostURL, id), nil)
 	if err != nil {
 		return err
 	}
