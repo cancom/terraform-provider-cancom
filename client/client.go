@@ -51,7 +51,7 @@ func (c *Client) DoRequest(req *http.Request) ([]byte, error) {
 		return nil, err
 	}
 
-	if resp.StatusCode != http.StatusOK {
+	if (resp.StatusCode != http.StatusOK) && (resp.StatusCode != 201) {
 		return nil, fmt.Errorf("status: %d, body: %s", resp.StatusCode, body)
 	}
 
