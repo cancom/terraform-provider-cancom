@@ -12,4 +12,5 @@ description: |-
 
 {{ tffile "examples/services/cmsmgw/resources/cmsmgw_gateway.tf" }}
 
+
 {{ .SchemaMarkdown | trimspace }}
