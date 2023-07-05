@@ -125,7 +125,7 @@ type NetworkCreateRequest struct {
 	Description string `json:"description"`
 	NameTag     string `json:"nameTag"`
 	HostAssign  bool   `json:"hostAssign"`
-	//Source      string `json:"source"`
+	Source      string `json:"source"`
 	//HostAssign   bool	`json:hostAssign`
 }
 

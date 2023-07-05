@@ -1,0 +1,102 @@
+package cmsmgw
+
+import (
+	"context"
+	//"encoding/json"
+	//"fmt"
+	//"net/http"
+	//"strconv"
+	//"time"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+)
+
+func dataSourceMgw() *schema.Resource {
+	return &schema.Resource{
+		ReadContext: dataSourceMgwRead,
+		Schema: map[string]*schema.Schema{
+			"id": &schema.Schema{
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"name": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"customer": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"state": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"bastion_network": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"primary_gw_ip": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"secondary_gw_ip": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+		},
+	}
+}
+
+func dataSourceMgwRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	c := m.(*Client)
+
+	// Warning or errors can be collected in a slice type
+	var diags diag.Diagnostics
+
+	mgwId := d.Get("id").(string)
+
+	mgw, err := c.GetMgw(mgwId)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	/*body, _ := json.Marshal(mgw)
+	err2 := fmt.Errorf("status: %d, body: %s", 404, body)
+	if (err != nil) || (err2 != nil) {
+		return diag.FromErr(err2)
+	}*/
+
+	d.Set("customer", mgw.Customer)
+	d.Set("name", mgw.NameTag)
+	d.Set("bastion_network", mgw.BastionNetwork)
+	d.Set("cancom_primary_gw_ip", mgw.CancomPrimaryGwIp)
+	d.Set("cancom_secondary_gw_ip", mgw.CancomSecondaryGwIp)
+	d.Set("state", mgw.Status)
+	d.SetId(mgw.ID)
+
+	return diags
+}
+
+/*
+	c := m.(*hc.Client)
+
+	// Warning or errors can be collected in a slice type
+	var diags diag.Diagnostics
+
+	orderID := strconv.Itoa(d.Get("id").(int))
+
+	order, err := c.GetOrder(orderID)
+	if err != nil {
+	  return diag.FromErr(err)
+	}
+
+	orderItems := flattenOrderItemsData(&order.Items)
+	if err := d.Set("items", orderItems); err != nil {
+	  return diag.FromErr(err)
+	}
+
+	d.SetId(orderID)
+
+	return diags
+*/
