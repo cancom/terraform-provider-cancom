@@ -1,10 +1,9 @@
 
 
-resource "cancom_cmsmgw_gateway" {
-	name = "Test"
-	size = "small"
-
-	nat             = true
-	bastion_linux   = false
-	bastion_windows = false
+resource "cancom_cmsmgw_gateway" "<resourece-name>" {
+   customer = "<ACCT Number>"
+   name = "<name>"
+   size = "<small, medium, larege"
+   nat_translation = false
+   description = "<a description for this gateway>"
 }
