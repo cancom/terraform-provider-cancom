@@ -20,7 +20,9 @@ func New() Provider {
 		ServiceName: "cmsmgw",
 		ProviderSchema: &schema.Provider{
 			ResourcesMap: map[string]*schema.Resource{
-				"gateway": resourceGateway(),
+				"gateway":     resourceGateway(),
+				"connection":  resourceConnection(),
+				"translation": resourceTranslation(),
 			},
 		},
 	}

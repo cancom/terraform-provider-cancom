@@ -100,7 +100,7 @@ func resourceNetworkCreate(ctx context.Context, d *schema.ResourceData, m interf
 		NameTag:     d.Get("name_tag").(string),
 		Description: d.Get("description").(string),
 		HostAssign:  false,
-		//Source:    "CANCOM-TF"  there is a bug in the backend preventing this currently
+		Source:      "CANCOM-TF",
 	}
 
 	resp, err := (*client_ipam.Client)(c).CreateNetwork(network)
