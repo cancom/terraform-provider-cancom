@@ -283,3 +283,30 @@ func (c *Client) RemovePolicyFromUser(PolicyRequest *PolicyRequest, principal st
 
 	return nil
 }
+
+func (c *Client) AssumeRole(role *AssumeRoleRequest) (*AssumeRoleResponse, error) {
+	body, err := json.Marshal(role)
+
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", fmt.Sprintf("%s/v1/AssumeRole", c.HostURL), bytes.NewBuffer(body))
+
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := (*client.Client)(c).DoRequest(req)
+	if err != nil {
+		return nil, err
+	}
+
+	assumeRole := AssumeRoleResponse{}
+	err = json.Unmarshal(resp, &assumeRole)
+	if err != nil {
+		return nil, err
+	}
+
+	return &assumeRole, nil
+}
