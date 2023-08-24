@@ -81,3 +81,12 @@ type Role struct {
 	Group       string `json:"group"`
 	CreatedBy   string `json:"createdBy"`
 }
+
+type AssumeRoleRequest struct {
+	Role string `json:"role"`
+}
+
+type AssumeRoleResponse struct {
+	Jwt     string `json:"jwt"`
+	Message string `json:"message"`
+}

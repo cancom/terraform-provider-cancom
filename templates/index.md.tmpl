@@ -35,4 +35,10 @@ Usage:
 
 {{ codefile "sh" "examples/index-env-var-tf-plan.txt" }}
 
+### Context
+
+By default, the terraform is executed in the context of the current principle identified by the token. If you need to change context, you can also provide the `role` parameter to assume a role in a different tenant. In this case, all actions are executed within the context of the assumed role.
+
+{{ tffile "examples/provider_role.tf" }}
+
 {{ .SchemaMarkdown | trimspace }}
