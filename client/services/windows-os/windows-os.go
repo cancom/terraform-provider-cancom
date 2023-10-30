@@ -13,13 +13,14 @@ import (
 
 type Client client.Client
 
-var urlPath = "/api/v1/Deployment"
+var urlPath = "api/v1/Deployment"
 
 func (c *Client) GetWindowsDeployment(id string) (*WindowsOS_Deplyoment, error) {
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s/%s/%s", c.HostURL, urlPath, id), nil)
 	if err != nil {
 		return nil, err
 	}
+	req.Header.Add("Content-Type", "application/json")
 
 	body, err := (*client.Client)(c).DoRequest(req)
 	if err != nil {
@@ -40,8 +41,8 @@ func (c *Client) CreateWindowsDeployment(windowsOSDeployment *WindowsOS_Deplyome
 	if err != nil {
 		return nil, err
 	}
-
 	req, err := http.NewRequest("POST", fmt.Sprintf("%s/%s", c.HostURL, urlPath), bytes.NewBuffer(body))
+	req.Header.Add("Content-Type", "application/json")
 	if err != nil {
 		return nil, err
 	}
@@ -61,17 +62,18 @@ func (c *Client) CreateWindowsDeployment(windowsOSDeployment *WindowsOS_Deplyome
 }
 
 // function to wait for succeded deployment
-func (c *Client) CreateWindowsDeploymentStatus(windowsOSDeployment *WindowsOS_Deplyoment) (*WindowsOS_Deplyoment, error) {
+func (c *Client) CreateWindowsDeploymentStatus(id string) (*WindowsOS_Deplyoment, error) {
 
 	errorstatus := []int{6, 5}
 	sucessstatus := []int{4}
 	//validation ressource. Waits until the deployment of the software has been finished.
 	//The deployment itself is run by the CANCOM Windows OS Service backend.
 	for {
-		req, err := http.NewRequest("GET", fmt.Sprintf("%s/%s/%s", c.HostURL, urlPath, windowsOSDeployment.Id), nil)
+		req, err := http.NewRequest("GET", fmt.Sprintf("%s/%s/%s", c.HostURL, urlPath, id), nil)
 		if err != nil {
 			return nil, err
 		}
+		req.Header.Add("Content-Type", "application/json")
 
 		resp, err := (*client.Client)(c).DoRequest(req)
 		if err != nil {
@@ -97,6 +99,7 @@ func (c *Client) UpdateWindowsOsDeployment(id string, windowsOSDeployment *Windo
 	if err != nil {
 		return nil, err
 	}
+
 	currentWindowsOSDeployment, getterError := c.GetWindowsDeployment(windowsOSDeployment.Id)
 	if getterError != nil {
 		return nil, err
@@ -113,6 +116,7 @@ func (c *Client) UpdateWindowsOsDeployment(id string, windowsOSDeployment *Windo
 	if err != nil {
 		return nil, err
 	}
+	req.Header.Add("Content-Type", "application/json")
 
 	resp, err := (*client.Client)(c).DoRequest(req)
 	if err != nil {
@@ -128,11 +132,12 @@ func (c *Client) UpdateWindowsOsDeployment(id string, windowsOSDeployment *Windo
 	return &osDeployment, nil
 }
 
-func (c *Client) DeleteSslMonitor(id string) error {
+func (c *Client) DeleteWindowsDeployment(id string) error {
 	req, err := http.NewRequest("DELETE", fmt.Sprintf("%s/%s/%s", c.HostURL, urlPath, id), nil)
 	if err != nil {
 		return err
 	}
+	req.Header.Add("Content-Type", "application/json")
 
 	_, err = (*client.Client)(c).DoRequest(req)
 	if err != nil {

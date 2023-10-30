@@ -33,3 +33,15 @@ func aggregateResources() map[string]*schema.Resource {
 	}
 	return resources
 }
+
+func aggregateData() map[string]*schema.Resource {
+	p := getAllProviders()
+	datas := make(map[string]*schema.Resource)
+	for _, p := range p {
+		for k, v := range p.Provider().DataSourcesMap {
+			k = "cancom_" + p.Name() + "_" + k
+			datas[k] = v
+		}
+	}
+	return datas
+}

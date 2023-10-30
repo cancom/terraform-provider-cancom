@@ -16,7 +16,7 @@ func resourceWindowsOSDeployment() *schema.Resource {
 		UpdateContext: resourceWindowsOSUpdate,
 		DeleteContext: resourceWindowsOSDelete,
 		Schema: map[string]*schema.Schema{
-			"coustomer_environment_id": {
+			"customer_environment_id": {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
@@ -43,6 +43,12 @@ func resourceWindowsOSDeployment() *schema.Resource {
 				},
 				Description: "Services deployed and delivered to maschine",
 			},
+			"customer_number": {
+				Type:        schema.TypeString,
+				Required:    false,
+				Computed:    true,
+				Description: "Customer number for Windows Management",
+			},
 		},
 	}
 }
@@ -55,13 +61,13 @@ func resourceWindowsOSCreate(ctx context.Context, d *schema.ResourceData, m inte
 	var diags diag.Diagnostics
 
 	tempservices := d.Get("services").([]interface{})
-	var servicesarray []string
+	servicesarray := []string{}
 	for _, tempservices := range tempservices {
 		servicesarray = append(servicesarray, tempservices.(string))
 	}
 
 	tempmaintenance_window_id := d.Get("maintenance_window_id").([]interface{})
-	var maintenance_window_id_array []string
+	maintenance_window_id_array := []string{}
 	for _, tempmaintenance_window_id := range tempmaintenance_window_id {
 		maintenance_window_id_array = append(maintenance_window_id_array, tempmaintenance_window_id.(string))
 	}
@@ -74,7 +80,7 @@ func resourceWindowsOSCreate(ctx context.Context, d *schema.ResourceData, m inte
 	windowsOSRequest := client_windowsos.WindowsOS_Deplyoment{
 
 		Computer:               computerObject,
-		CoustomerEnvironmentID: d.Get("coustomer_environment_id").(string),
+		CoustomerEnvironmentID: d.Get("customer_environment_id").(string),
 	}
 
 	resp, err := (*client_windowsos.Client)(c).CreateWindowsDeployment(&windowsOSRequest)
@@ -82,6 +88,7 @@ func resourceWindowsOSCreate(ctx context.Context, d *schema.ResourceData, m inte
 		return diag.FromErr(err)
 	}
 
+	d.Set("customer_number", resp.Computer.CustomerID)
 	d.SetId(resp.Id)
 
 	return diags
@@ -100,7 +107,7 @@ func resourceWindowsOSRead(ctx context.Context, d *schema.ResourceData, m interf
 		return diag.FromErr(err)
 	}
 
-	d.Set("coustomer_environment_id", resp.CoustomerEnvironmentID)
+	d.Set("customer_environment_id", resp.CoustomerEnvironmentID)
 	d.Set("role", resp.Computer.Role)
 	d.Set("maintenance_window_id", resp.Computer.MaintenanceWindowId)
 	d.Set("services", resp.Computer.Services)
@@ -123,7 +130,7 @@ func resourceWindowsOSUpdate(ctx context.Context, d *schema.ResourceData, m inte
 
 	windowsOSRequest := client_windowsos.WindowsOS_Deplyoment{
 		Computer:               computerObject,
-		CoustomerEnvironmentID: d.Get("coustomer_environment_id").(string),
+		CoustomerEnvironmentID: d.Get("customer_environment_id").(string),
 	}
 
 	resp, err := (*client_windowsos.Client)(c).UpdateWindowsOsDeployment(d.Id(), &windowsOSRequest)
@@ -143,7 +150,7 @@ func resourceWindowsOSDelete(ctx context.Context, d *schema.ResourceData, m inte
 
 	var diags diag.Diagnostics
 
-	err := (*client_windowsos.Client)(c).DeleteSslMonitor(d.Id())
+	err := (*client_windowsos.Client)(c).DeleteWindowsDeployment(d.Id())
 	if err != nil {
 		return diag.FromErr(err)
 	}

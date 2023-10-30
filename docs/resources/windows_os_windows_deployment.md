@@ -17,7 +17,7 @@ description: |-
 
 ### Required
 
-- `coustomer_environment_id` (String) ID of the customer environment.
+- `customer_environment_id` (String) ID of the customer environment.
 - `role` (String) Role of the Machine - needs to match predefined roles.
 - `services` (List of String) Services deployed and delivered to maschine
 
