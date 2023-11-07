@@ -17,6 +17,8 @@ func Provider() *schema.Provider {
 
 	ar := aggregateResources()
 
+	dr := aggregateData()
+
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
 			"token": {
@@ -38,7 +40,7 @@ func Provider() *schema.Provider {
 			},
 		},
 		ResourcesMap:         ar,
-		DataSourcesMap:       map[string]*schema.Resource{},
+		DataSourcesMap:       dr,
 		ConfigureContextFunc: providerConfigure,
 	}
 }
