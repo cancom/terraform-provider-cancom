@@ -122,6 +122,7 @@ func resourceWindowsOSUpdate(ctx context.Context, d *schema.ResourceData, m inte
 
 	var diags diag.Diagnostics
 
+
 	tempservices := d.Get("services").([]interface{})
 	servicesarray := []string{}
 	for _, tempservices := range tempservices {
@@ -136,6 +137,7 @@ func resourceWindowsOSUpdate(ctx context.Context, d *schema.ResourceData, m inte
 	computerObject := client_windowsos.WindowsOS_Computer{
 		Services:            servicesarray,
 		MaintenanceWindowId: maintenance_window_id_array,
+
 		Role:                d.Get("role").(string),
 	}
 

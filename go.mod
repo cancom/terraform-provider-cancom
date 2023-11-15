@@ -1,6 +1,6 @@
 module github.com/cancom/terraform-provider-cancom
 
-go 1.18
+go 1.21
 
 require (
 	github.com/hashicorp/terraform-plugin-docs v0.13.0
