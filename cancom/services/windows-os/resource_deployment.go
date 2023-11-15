@@ -122,9 +122,22 @@ func resourceWindowsOSUpdate(ctx context.Context, d *schema.ResourceData, m inte
 
 	var diags diag.Diagnostics
 
+
+	tempservices := d.Get("services").([]interface{})
+	servicesarray := []string{}
+	for _, tempservices := range tempservices {
+		servicesarray = append(servicesarray, tempservices.(string))
+	}
+
+	tempmaintenance_window_id := d.Get("maintenance_window_id").([]interface{})
+	maintenance_window_id_array := []string{}
+	for _, tempmaintenance_window_id := range tempmaintenance_window_id {
+		maintenance_window_id_array = append(maintenance_window_id_array, tempmaintenance_window_id.(string))
+	}
 	computerObject := client_windowsos.WindowsOS_Computer{
-		Services:            d.Get("services").([]string),
-		MaintenanceWindowId: d.Get("maintenance_window_id").([]string),
+		Services:            servicesarray,
+		MaintenanceWindowId: maintenance_window_id_array,
+
 		Role:                d.Get("role").(string),
 	}
 
