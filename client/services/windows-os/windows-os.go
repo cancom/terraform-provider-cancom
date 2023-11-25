@@ -76,6 +76,10 @@ func (c *Client) CreateWindowsDeploymentStatus(id string) (*WindowsOS_Deplyoment
 	//The deployment itself is run by the CANCOM Windows OS Service backend.
 	for {
 		req, err := http.NewRequest("GET", fmt.Sprintf("%s/%s/%s", c.HostURL, urlPath, id), nil)
+
+		req.Header.Add("Content-Type", "application/json")
+
+		resp, err := (*client.Client)(c).DoRequest(req)
 		if err != nil {
 
 			// allow timeouts because of long running queries in background
@@ -89,25 +93,19 @@ func (c *Client) CreateWindowsDeploymentStatus(id string) (*WindowsOS_Deplyoment
 			}
 		} else {
 			timeoutCount = 0
+			apiResultObject := WindowsOS_Deplyoment{}
+			err = json.Unmarshal(resp, &apiResultObject)
+			if err != nil {
+				return nil, err
+			}
+			if slices.Contains(errorstatus, apiResultObject.Status) {
+				return nil, err
+			} else if slices.Contains(sucessstatus, apiResultObject.Status) {
+				return &apiResultObject, nil
+			}
+			time.Sleep(30 * time.Second) // sleep for 30 seconds to aviod active waiting
+		}
 
-		}
-		req.Header.Add("Content-Type", "application/json")
-
-		resp, err := (*client.Client)(c).DoRequest(req)
-		if err != nil {
-			return nil, err
-		}
-		apiResultObject := WindowsOS_Deplyoment{}
-		err = json.Unmarshal(resp, &apiResultObject)
-		if err != nil {
-			return nil, err
-		}
-		if slices.Contains(errorstatus, apiResultObject.Status) {
-			return nil, err
-		} else if slices.Contains(sucessstatus, apiResultObject.Status) {
-			return &apiResultObject, nil
-		}
-		time.Sleep(30 * time.Second) // sleep for 30 seconds to aviod active
 	}
 
 }
