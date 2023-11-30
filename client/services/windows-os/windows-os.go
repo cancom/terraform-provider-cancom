@@ -76,7 +76,6 @@ func (c *Client) CreateWindowsDeploymentStatus(id string) (*WindowsOS_Deplyoment
 	//The deployment itself is run by the CANCOM Windows OS Service backend.
 	for {
 		req, err := http.NewRequest("GET", fmt.Sprintf("%s/%s/%s", c.HostURL, urlPath, id), nil)
-
 		req.Header.Add("Content-Type", "application/json")
 
 		resp, err := (*client.Client)(c).DoRequest(req)
