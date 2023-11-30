@@ -25,6 +25,7 @@ func resourceWindowsOSDeployment() *schema.Resource {
 			"role": {
 				Type:        schema.TypeString,
 				Required:    true,
+				ForceNew:    true,
 				Description: "Role of the Machine - needs to match predefined roles.",
 			},
 			"maintenance_window_id": {
@@ -38,6 +39,7 @@ func resourceWindowsOSDeployment() *schema.Resource {
 			"services": {
 				Type:     schema.TypeList,
 				Required: true,
+				ForceNew: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
