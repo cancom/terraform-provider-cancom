@@ -103,11 +103,9 @@ func (c *Client) CreateWindowsDeploymentStatus(id string) (*WindowsOS_Deplyoment
 			} else if slices.Contains(sucessstatus, apiResultObject.Status) {
 				return &apiResultObject, nil
 			}
-			time.Sleep(30 * time.Second) // sleep for 30 seconds to aviod active waiting
 		}
-
+		time.Sleep(30 * time.Second) // sleep for 30 seconds to aviod active waiting
 	}
-
 }
 
 func (c *Client) UpdateWindowsOsDeployment(id string, windowsOSDeployment *WindowsOS_Deplyoment) (*WindowsOS_Deplyoment, error) {
