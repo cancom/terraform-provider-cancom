@@ -17,6 +17,10 @@ func dataWindowsOSDeploymentProgress() *schema.Resource {
 				ForceNew:    true,
 				Description: "ID of the deployment object.",
 			},
+			"state": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -26,13 +30,17 @@ func WindowsOSDeploymentProgressRead(d *schema.ResourceData, meta interface{}) e
 
 	c.HostURL = c.ServiceURLs["managed-windows"]
 
+	if d.Get("state").(string) == "Finished" {
+		return nil
+	}
+
 	resp, err := (*client_windowsos.Client)(c).CreateWindowsDeploymentStatus(d.Get("deployment_id").(string))
 	if err != nil {
 		return err
 	}
 
 	d.SetId(resp.Id)
+	d.Set("state", "Finished")
 
 	return nil
-
 }
