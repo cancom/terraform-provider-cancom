@@ -2,12 +2,19 @@ package dns
 
 import (
 	"context"
+	"strings"
 
+	"github.com/cancom/terraform-provider-cancom/cancom/util"
 	"github.com/cancom/terraform-provider-cancom/client"
 	client_dns "github.com/cancom/terraform-provider-cancom/client/services/dns"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
+
+// This is a bit of a hack to prevent multiple API requests for the same zone. The zone api locks after each individual request to wait until
+// the record is available on all resolvers. Creating many records might therefore run into timeout and 429 Too Many Requests issues.
+// This can still happen if the API is triggered externally, hence we also use retries for those cases.
+var resourceRecordApiLock = util.NewLock()
 
 func resourceRecord() *schema.Resource {
 	return &schema.Resource{
@@ -61,6 +68,11 @@ func resourceRecord() *schema.Resource {
 				Computed:    true,
 				Description: "The date at which the record was last updated",
 			},
+			"tenant": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The tenant that the record belongs to.",
+			},
 		},
 	}
 }
@@ -78,7 +90,13 @@ func resourceRecordCreate(ctx context.Context, d *schema.ResourceData, m interfa
 		Content:  d.Get("content").(string),
 		TTL:      d.Get("ttl").(int),
 		ZoneName: d.Get("zone_name").(string),
+		Tenant:   d.Get("tenant").(string),
 	}
+
+	if err := resourceRecordApiLock.Lock(ctx); err != nil {
+		return diag.FromErr(err)
+	}
+	defer resourceRecordApiLock.Unlock()
 
 	resp, err := (*client_dns.Client)(c).CreateRecord(record)
 
@@ -116,7 +134,7 @@ func resourceRecordRead(ctx context.Context, d *schema.ResourceData, m interface
 		return diag.FromErr(err)
 	}
 
-	d.Set("name", resp.Name)
+	d.Set("name", strings.Replace(resp.Name, "."+resp.ZoneName, "", 1))
 	d.Set("type", resp.Type)
 	d.Set("content", resp.Content)
 	d.Set("ttl", resp.TTL)
@@ -125,6 +143,7 @@ func resourceRecordRead(ctx context.Context, d *schema.ResourceData, m interface
 	d.Set("id", resp.ID)
 	d.Set("comments", resp.Comments)
 	d.Set("last_change_date", resp.LastChangeDate)
+	d.Set("tenant", resp.Tenant)
 
 	return diags
 }
@@ -145,7 +164,13 @@ func resourceRecordUpdate(ctx context.Context, d *schema.ResourceData, m interfa
 		TTL:      d.Get("ttl").(int),
 		ZoneName: d.Get("zone_name").(string),
 		ZoneID:   d.Get("zone_id").(string),
+		Tenant:   d.Get("tenant").(string),
 	}
+
+	if err := resourceRecordApiLock.Lock(ctx); err != nil {
+		return diag.FromErr(err)
+	}
+	defer resourceRecordApiLock.Unlock()
 
 	_, err := (*client_dns.Client)(c).UpdateRecord(id, record)
 
@@ -168,6 +193,11 @@ func resourceRecordDelete(ctx context.Context, d *schema.ResourceData, m interfa
 	var diags diag.Diagnostics
 
 	id := d.Id()
+
+	if err := resourceRecordApiLock.Lock(ctx); err != nil {
+		return diag.FromErr(err)
+	}
+	defer resourceRecordApiLock.Unlock()
 
 	err := (*client_dns.Client)(c).DeleteRecord(id)
 

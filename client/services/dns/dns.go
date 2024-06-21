@@ -92,23 +92,27 @@ func (c *Client) GetAllRecords() ([]Record, error) {
 }
 
 func (c *Client) CreateRecord(record *RecordCreateRequest) (*Record, error) {
+	if record.Mode == "" {
+		record.Mode = "Merge"
+	}
+
 	body, err := json.Marshal(record)
 	if err != nil {
 		return nil, err
 	}
 
-	req, err := http.NewRequest("POST", fmt.Sprintf("%s/v1/Records", c.HostURL), bytes.NewBuffer(body))
+	req, err := http.NewRequest("POST", fmt.Sprintf("%s/v1/Records", c.HostURL), bytes.NewReader(body))
 	if err != nil {
 		return nil, err
 	}
 
-	body, err = (*client.Client)(c).DoRequest(req)
+	resp, err := (*client.Client)(c).DoRequestWithRetry(req, nil)
 	if err != nil {
 		return nil, err
 	}
 
 	recordBody := Record{}
-	err = json.Unmarshal(body, &recordBody)
+	err = json.Unmarshal(resp, &recordBody)
 	if err != nil {
 		return nil, err
 	}
@@ -117,6 +121,10 @@ func (c *Client) CreateRecord(record *RecordCreateRequest) (*Record, error) {
 }
 
 func (c *Client) UpdateRecord(id string, record *RecordUpdateRequest) (*Record, error) {
+	if record.Mode == "" {
+		record.Mode = "Merge"
+	}
+
 	body, err := json.Marshal(record)
 	if err != nil {
 		return nil, err
@@ -127,7 +135,7 @@ func (c *Client) UpdateRecord(id string, record *RecordUpdateRequest) (*Record, 
 		return nil, err
 	}
 
-	body, err = (*client.Client)(c).DoRequest(req)
+	body, err = (*client.Client)(c).DoRequestWithRetry(req, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -147,7 +155,7 @@ func (c *Client) DeleteRecord(id string) error {
 		return err
 	}
 
-	_, err = (*client.Client)(c).DoRequest(req)
+	_, err = (*client.Client)(c).DoRequestWithRetry(req, nil)
 	if err != nil {
 		return err
 	}

@@ -30,6 +30,7 @@ type Record struct {
 	TTL            int    `json:"ttl"`
 	Comments       string `json:"comments"`
 	LastChangeDate string `json:"lastChangeDate"`
+	Tenant         string `json:"tenant"`
 }
 
 type RecordCreateRequest struct {
@@ -38,6 +39,8 @@ type RecordCreateRequest struct {
 	Name     string `json:"name"`
 	Content  string `json:"content"`
 	TTL      int    `json:"ttl"`
+	Tenant   string `json:"tenant"`
+	Mode     string `json:"mode"`
 }
 
 type RecordUpdateRequest struct {
@@ -47,4 +50,6 @@ type RecordUpdateRequest struct {
 	TTL      int    `json:"ttl"`
 	ZoneName string `json:"zoneName"`
 	ZoneID   string `json:"zoneId"`
+	Tenant   string `json:"tenant"`
+	Mode     string `json:"mode"`
 }
