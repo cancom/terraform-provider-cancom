@@ -24,6 +24,7 @@ func resourceNetwork() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: false,
 				Required: true,
+				ForceNew: true,
 			},
 			"name_tag": {
 				Type:     schema.TypeString,
@@ -39,6 +40,7 @@ func resourceNetwork() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: false,
 				Required: true,
+				ForceNew: true,
 			},
 			"host_assign": {
 				Type:     schema.TypeBool,
