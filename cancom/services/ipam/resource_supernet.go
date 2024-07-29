@@ -39,6 +39,7 @@ func resourceSupernet() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: false,
 				Required: true,
+				ForceNew: true,
 			},
 			"created_at": {
 				Type:     schema.TypeString,

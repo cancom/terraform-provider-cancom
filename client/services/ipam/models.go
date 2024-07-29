@@ -110,7 +110,7 @@ type Network struct {
 	SupernetId  string `json:"parent"`
 	Description string `json:"description"`
 	NameTag     string `json:"nameTag"`
-	PrefixStr   string `json:"prefix_str"`
+	PrefixStr   string `json:"prefixStr"`
 	HostAssign  bool   `json:"hostAssign"`
 	CreatedAt   string `json:"createdAt"`
 	UpdatedAt   string `json:"updatedAt"`

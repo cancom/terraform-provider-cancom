@@ -24,11 +24,13 @@ func resourceHost() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: false,
 				Required: true,
+				ForceNew: true,
 			},
 			"qualifier": {
 				Type:     schema.TypeString,
 				Computed: false,
 				Optional: true,
+				ForceNew: true,
 			},
 			"name_tag": {
 				Type:     schema.TypeString,
