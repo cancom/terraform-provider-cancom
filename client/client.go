@@ -20,7 +20,7 @@ type Client struct {
 
 func NewClient(host, token *string) (*Client, error) {
 	c := Client{
-		HTTPClient:  &http.Client{Timeout: 10 * time.Second},
+		HTTPClient:  &http.Client{Timeout: 2 * time.Minute},
 		ServiceURLs: map[string]string{},
 		HostURL:     HostURL,
 	}
