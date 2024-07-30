@@ -54,9 +54,7 @@ func resourceSupernet() *schema.Resource {
 }
 
 func resourceSupernetRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-
-	c.HostURL = c.ServiceURLs["ip-management"]
+	c, _ := m.(*client.CcpClient).GetService("ip-management")
 	var diags diag.Diagnostics
 
 	id := d.Id()
@@ -79,9 +77,7 @@ func resourceSupernetRead(ctx context.Context, d *schema.ResourceData, m interfa
 }
 
 func resourceSupernetCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-
-	c.HostURL = c.ServiceURLs["ip-management"]
+	c, _ := m.(*client.CcpClient).GetService("ip-management")
 
 	var diags diag.Diagnostics
 
@@ -110,9 +106,7 @@ func resourceSupernetCreate(ctx context.Context, d *schema.ResourceData, m inter
 }
 
 func resourceSupernetUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-
-	c.HostURL = c.ServiceURLs["ip-management"]
+	c, _ := m.(*client.CcpClient).GetService("ip-management")
 
 	var diags diag.Diagnostics
 
@@ -140,9 +134,7 @@ func resourceSupernetUpdate(ctx context.Context, d *schema.ResourceData, m inter
 }
 
 func resourceSupernetDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-
-	c.HostURL = c.ServiceURLs["ip-management"]
+	c, _ := m.(*client.CcpClient).GetService("ip-management")
 
 	var diags diag.Diagnostics
 

@@ -55,9 +55,8 @@ func resourceHost() *schema.Resource {
 }
 
 func resourceHostRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
+	c, _ := m.(*client.CcpClient).GetService("ip-management")
 
-	c.HostURL = c.ServiceURLs["ip-management"]
 	var diags diag.Diagnostics
 
 	id := d.Id()
@@ -77,9 +76,10 @@ func resourceHostRead(ctx context.Context, d *schema.ResourceData, m interface{}
 }
 
 func resourceHostCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-
-	c.HostURL = c.ServiceURLs["ip-management"]
+	c, err := m.(*client.CcpClient).GetService("ip-management")
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	var diags diag.Diagnostics
 
@@ -110,9 +110,7 @@ func resourceHostCreate(ctx context.Context, d *schema.ResourceData, m interface
 }
 
 func resourceHostUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-
-	c.HostURL = c.ServiceURLs["ip-management"]
+	c, _ := m.(*client.CcpClient).GetService("ip-management")
 
 	var diags diag.Diagnostics
 
@@ -139,9 +137,7 @@ func resourceHostUpdate(ctx context.Context, d *schema.ResourceData, m interface
 }
 
 func resourceHostDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-
-	c.HostURL = c.ServiceURLs["ip-management"]
+	c, _ := m.(*client.CcpClient).GetService("ip-management")
 
 	var diags diag.Diagnostics
 

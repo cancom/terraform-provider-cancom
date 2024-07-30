@@ -52,9 +52,7 @@ func resourceInstance() *schema.Resource {
 }
 
 func resourceInstanceRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-
-	c.HostURL = c.ServiceURLs["ip-management"]
+	c, _ := m.(*client.CcpClient).GetService("ip-management")
 	var diags diag.Diagnostics
 
 	id := d.Id()
@@ -77,9 +75,7 @@ func resourceInstanceRead(ctx context.Context, d *schema.ResourceData, m interfa
 }
 
 func resourceInstanceCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-
-	c.HostURL = c.ServiceURLs["ip-management"]
+	c, _ := m.(*client.CcpClient).GetService("ip-management")
 
 	var diags diag.Diagnostics
 
@@ -108,9 +104,7 @@ func resourceInstanceCreate(ctx context.Context, d *schema.ResourceData, m inter
 }
 
 func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-
-	c.HostURL = c.ServiceURLs["ip-management"]
+	c, _ := m.(*client.CcpClient).GetService("ip-management")
 
 	var diags diag.Diagnostics
 
@@ -138,9 +132,7 @@ func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, m inter
 }
 
 func resourceInstanceDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-
-	c.HostURL = c.ServiceURLs["ip-management"]
+	c, _ := m.(*client.CcpClient).GetService("ip-management")
 
 	var diags diag.Diagnostics
 

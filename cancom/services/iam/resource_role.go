@@ -57,9 +57,7 @@ func resourceRole() *schema.Resource {
 }
 
 func resourceRoleCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-
-	c.HostURL = c.ServiceURLs["iam"]
+	c, _ := m.(*client.CcpClient).GetService("iam")
 
 	var diags diag.Diagnostics
 
@@ -83,9 +81,7 @@ func resourceRoleCreate(ctx context.Context, d *schema.ResourceData, m interface
 }
 
 func resourceRoleRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-
-	c.HostURL = c.ServiceURLs["iam"]
+	c, _ := m.(*client.CcpClient).GetService("iam")
 
 	var diags diag.Diagnostics
 
@@ -105,9 +101,7 @@ func resourceRoleRead(ctx context.Context, d *schema.ResourceData, m interface{}
 }
 
 func resourceRoleUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-
-	c.HostURL = c.ServiceURLs["iam"]
+	c, _ := m.(*client.CcpClient).GetService("iam")
 
 	var diags diag.Diagnostics
 
@@ -127,9 +121,7 @@ func resourceRoleUpdate(ctx context.Context, d *schema.ResourceData, m interface
 }
 
 func resourceRoleDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-
-	c.HostURL = c.ServiceURLs["iam"]
+	c, _ := m.(*client.CcpClient).GetService("iam")
 
 	var diags diag.Diagnostics
 

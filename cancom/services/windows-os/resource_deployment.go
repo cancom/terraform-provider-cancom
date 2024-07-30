@@ -56,9 +56,7 @@ func resourceWindowsOSDeployment() *schema.Resource {
 }
 
 func resourceWindowsOSCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-
-	c.HostURL = c.ServiceURLs["managed-windows"]
+	c, _ := m.(*client.CcpClient).GetService("managed-windows")
 
 	var diags diag.Diagnostics
 
@@ -98,9 +96,7 @@ func resourceWindowsOSCreate(ctx context.Context, d *schema.ResourceData, m inte
 }
 
 func resourceWindowsOSRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-
-	c.HostURL = c.ServiceURLs["managed-windows"]
+	c, _ := m.(*client.CcpClient).GetService("managed-windows")
 
 	var diags diag.Diagnostics
 
@@ -118,12 +114,9 @@ func resourceWindowsOSRead(ctx context.Context, d *schema.ResourceData, m interf
 }
 
 func resourceWindowsOSUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-
-	c.HostURL = c.ServiceURLs["managed-windows"]
+	c, _ := m.(*client.CcpClient).GetService("managed-windows")
 
 	var diags diag.Diagnostics
-
 
 	tempservices := d.Get("services").([]interface{})
 	servicesarray := []string{}
@@ -140,7 +133,7 @@ func resourceWindowsOSUpdate(ctx context.Context, d *schema.ResourceData, m inte
 		Services:            servicesarray,
 		MaintenanceWindowId: maintenance_window_id_array,
 
-		Role:                d.Get("role").(string),
+		Role: d.Get("role").(string),
 	}
 
 	windowsOSRequest := client_windowsos.WindowsOS_Deplyoment{
@@ -159,9 +152,7 @@ func resourceWindowsOSUpdate(ctx context.Context, d *schema.ResourceData, m inte
 }
 
 func resourceWindowsOSDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-
-	c.HostURL = c.ServiceURLs["managed-windows"]
+	c, _ := m.(*client.CcpClient).GetService("managed-windows")
 
 	var diags diag.Diagnostics
 

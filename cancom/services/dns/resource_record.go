@@ -78,9 +78,7 @@ func resourceRecord() *schema.Resource {
 }
 
 func resourceRecordCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-
-	c.HostURL = c.ServiceURLs["domdns"]
+	c, _ := m.(*client.CcpClient).GetService("domdns")
 
 	var diags diag.Diagnostics
 
@@ -119,9 +117,7 @@ func resourceRecordCreate(ctx context.Context, d *schema.ResourceData, m interfa
 }
 
 func resourceRecordRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-
-	c.HostURL = c.ServiceURLs["domdns"]
+	c, _ := m.(*client.CcpClient).GetService("domdns")
 
 	var diags diag.Diagnostics
 
@@ -149,9 +145,7 @@ func resourceRecordRead(ctx context.Context, d *schema.ResourceData, m interface
 }
 
 func resourceRecordUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-
-	c.HostURL = c.ServiceURLs["domdns"]
+	c, _ := m.(*client.CcpClient).GetService("domdns")
 
 	var diags diag.Diagnostics
 
@@ -186,9 +180,7 @@ func resourceRecordUpdate(ctx context.Context, d *schema.ResourceData, m interfa
 }
 
 func resourceRecordDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-
-	c.HostURL = c.ServiceURLs["domdns"]
+	c, _ := m.(*client.CcpClient).GetService("domdns")
 
 	var diags diag.Diagnostics
 

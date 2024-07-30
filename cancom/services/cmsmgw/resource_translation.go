@@ -54,8 +54,7 @@ func resourceTranslation() *schema.Resource {
 }
 
 func resourceTranslationCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-	c.HostURL = c.ServiceURLs["cmsmgw"]
+	c, _ := m.(*client.CcpClient).GetService("cmsmgw")
 
 	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics
@@ -106,8 +105,7 @@ func resourceTranslationCreate(ctx context.Context, d *schema.ResourceData, m in
 }
 
 func resourceTranslationRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-	c.HostURL = c.ServiceURLs["cmsmgw"]
+	c, _ := m.(*client.CcpClient).GetService("cmsmgw")
 
 	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics
@@ -131,8 +129,7 @@ func resourceTranslationRead(ctx context.Context, d *schema.ResourceData, m inte
 }
 
 func resourceTranslationUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-	c.HostURL = c.ServiceURLs["cmsmgw"]
+	c, _ := m.(*client.CcpClient).GetService("cmsmgw")
 
 	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics
@@ -189,8 +186,7 @@ func resourceTranslationUpdate(ctx context.Context, d *schema.ResourceData, m in
 }
 
 func resourceTranslationDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-	c.HostURL = c.ServiceURLs["cmsmgw"]
+	c, _ := m.(*client.CcpClient).GetService("cmsmgw")
 
 	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics

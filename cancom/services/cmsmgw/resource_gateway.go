@@ -81,8 +81,7 @@ func resourceGateway() *schema.Resource {
 }
 
 func resourceGatewayCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-	c.HostURL = c.ServiceURLs["cmsmgw"]
+	c, _ := m.(*client.CcpClient).GetService("cmsmgw")
 	tflog.Info(ctx, "Creating Gateway")
 
 	// Warning or errors can be collected in a slice type
@@ -140,8 +139,7 @@ func resourceGatewayCreate(ctx context.Context, d *schema.ResourceData, m interf
 
 // --------------Gateway Read----------------------------
 func resourceGatewayRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-	c.HostURL = c.ServiceURLs["cmsmgw"]
+	c, _ := m.(*client.CcpClient).GetService("cmsmgw")
 
 	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics
@@ -173,8 +171,7 @@ func resourceGatewayRead(ctx context.Context, d *schema.ResourceData, m interfac
 
 // ---------------update mgw----------------------
 func resourceGatewayUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-	c.HostURL = c.ServiceURLs["cmsmgw"]
+	c, _ := m.(*client.CcpClient).GetService("cmsmgw")
 
 	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics
@@ -223,8 +220,7 @@ func resourceGatewayUpdate(ctx context.Context, d *schema.ResourceData, m interf
 
 // ----------------------delete mgw
 func resourceGatewayDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-	c.HostURL = c.ServiceURLs["cmsmgw"]
+	c, _ := m.(*client.CcpClient).GetService("cmsmgw")
 
 	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics

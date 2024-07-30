@@ -57,9 +57,7 @@ func resourceUser() *schema.Resource {
 }
 
 func resourceUserCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-
-	c.HostURL = c.ServiceURLs["iam"]
+	c, _ := m.(*client.CcpClient).GetService("iam")
 
 	var diags diag.Diagnostics
 
@@ -82,9 +80,7 @@ func resourceUserCreate(ctx context.Context, d *schema.ResourceData, m interface
 }
 
 func resourceUserRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-
-	c.HostURL = c.ServiceURLs["iam"]
+	c, _ := m.(*client.CcpClient).GetService("iam")
 
 	var diags diag.Diagnostics
 
@@ -108,9 +104,7 @@ func resourceUserRead(ctx context.Context, d *schema.ResourceData, m interface{}
 }
 
 func resourceUserUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-
-	c.HostURL = c.ServiceURLs["iam"]
+	c, _ := m.(*client.CcpClient).GetService("iam")
 
 	var diags diag.Diagnostics
 
@@ -134,9 +128,7 @@ func resourceUserUpdate(ctx context.Context, d *schema.ResourceData, m interface
 }
 
 func resourceUserDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-
-	c.HostURL = c.ServiceURLs["iam"]
+	c, _ := m.(*client.CcpClient).GetService("iam")
 
 	var diags diag.Diagnostics
 

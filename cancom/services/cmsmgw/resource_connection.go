@@ -88,8 +88,7 @@ func resourceConnection() *schema.Resource {
 }
 
 func resourceConnectionCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-	c.HostURL = c.ServiceURLs["cmsmgw"]
+	c, _ := m.(*client.CcpClient).GetService("cmsmgw")
 
 	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics
@@ -174,8 +173,7 @@ func resourceConnectionCreate(ctx context.Context, d *schema.ResourceData, m int
 
 // --------------------------Read Connection------------------------------
 func resourceConnectionRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-	c.HostURL = c.ServiceURLs["cmsmgw"]
+	c, _ := m.(*client.CcpClient).GetService("cmsmgw")
 
 	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics
@@ -205,8 +203,7 @@ func resourceConnectionRead(ctx context.Context, d *schema.ResourceData, m inter
 
 // --------------------------Update Connection------------------------------
 func resourceConnectionUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-	c.HostURL = c.ServiceURLs["cmsmgw"]
+	c, _ := m.(*client.CcpClient).GetService("cmsmgw")
 
 	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics
@@ -287,8 +284,7 @@ func resourceConnectionUpdate(ctx context.Context, d *schema.ResourceData, m int
 
 // --------------------------Delete Connection------------------------------
 func resourceConnectionDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-	c.HostURL = c.ServiceURLs["cmsmgw"]
+	c, _ := m.(*client.CcpClient).GetService("cmsmgw")
 
 	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics
