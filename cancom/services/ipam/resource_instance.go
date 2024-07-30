@@ -52,7 +52,11 @@ func resourceInstance() *schema.Resource {
 }
 
 func resourceInstanceRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c, _ := m.(*client.CcpClient).GetService("ip-management")
+	c, err := m.(*client.CcpClient).GetService("ip-management")
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
 	var diags diag.Diagnostics
 
 	id := d.Id()
@@ -75,7 +79,10 @@ func resourceInstanceRead(ctx context.Context, d *schema.ResourceData, m interfa
 }
 
 func resourceInstanceCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c, _ := m.(*client.CcpClient).GetService("ip-management")
+	c, err := m.(*client.CcpClient).GetService("ip-management")
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	var diags diag.Diagnostics
 
@@ -104,7 +111,10 @@ func resourceInstanceCreate(ctx context.Context, d *schema.ResourceData, m inter
 }
 
 func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c, _ := m.(*client.CcpClient).GetService("ip-management")
+	c, err := m.(*client.CcpClient).GetService("ip-management")
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	var diags diag.Diagnostics
 
@@ -118,7 +128,7 @@ func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, m inter
 		Source:          "CANCOM-TF",
 	}
 
-	_, err := (*client_ipam.Client)(c).UpdateInstance(id, instance)
+	_, err = (*client_ipam.Client)(c).UpdateInstance(id, instance)
 
 	if err != nil {
 		return diag.FromErr(err)
@@ -132,13 +142,16 @@ func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, m inter
 }
 
 func resourceInstanceDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c, _ := m.(*client.CcpClient).GetService("ip-management")
+	c, err := m.(*client.CcpClient).GetService("ip-management")
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	var diags diag.Diagnostics
 
 	id := d.Id()
 
-	err := (*client_ipam.Client)(c).DeleteInstance(id)
+	err = (*client_ipam.Client)(c).DeleteInstance(id)
 
 	if err != nil {
 		return diag.FromErr(err)

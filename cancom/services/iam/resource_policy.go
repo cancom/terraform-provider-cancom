@@ -55,7 +55,10 @@ func resourcePolicy() *schema.Resource {
 }
 
 func resourcePolicyCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c, _ := m.(*client.CcpClient).GetService("iam")
+	c, err := m.(*client.CcpClient).GetService("iam")
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	var diags diag.Diagnostics
 
@@ -82,7 +85,7 @@ func resourcePolicyCreate(ctx context.Context, d *schema.ResourceData, m interfa
 		}
 	}
 
-	err := (*client_iam.Client)(c).AssignPolicyToUser(&policyRequest, d.Get("principal").(string))
+	err = (*client_iam.Client)(c).AssignPolicyToUser(&policyRequest, d.Get("principal").(string))
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -101,7 +104,10 @@ func resourcePolicyUpdate(ctx context.Context, d *schema.ResourceData, m interfa
 }
 
 func resourcePolicyDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c, _ := m.(*client.CcpClient).GetService("iam")
+	c, err := m.(*client.CcpClient).GetService("iam")
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	// delete policy
 	policyRequest := client_iam.PolicyRequest{
@@ -110,7 +116,7 @@ func resourcePolicyDelete(ctx context.Context, d *schema.ResourceData, m interfa
 
 	var diags diag.Diagnostics
 
-	err := (*client_iam.Client)(c).RemovePolicyFromUser(&policyRequest, d.Get("principal").(string))
+	err = (*client_iam.Client)(c).RemovePolicyFromUser(&policyRequest, d.Get("principal").(string))
 	if err != nil {
 		return diag.FromErr(err)
 	}

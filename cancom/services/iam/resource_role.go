@@ -57,7 +57,10 @@ func resourceRole() *schema.Resource {
 }
 
 func resourceRoleCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c, _ := m.(*client.CcpClient).GetService("iam")
+	c, err := m.(*client.CcpClient).GetService("iam")
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	var diags diag.Diagnostics
 
@@ -81,7 +84,10 @@ func resourceRoleCreate(ctx context.Context, d *schema.ResourceData, m interface
 }
 
 func resourceRoleRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c, _ := m.(*client.CcpClient).GetService("iam")
+	c, err := m.(*client.CcpClient).GetService("iam")
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	var diags diag.Diagnostics
 
@@ -101,7 +107,10 @@ func resourceRoleRead(ctx context.Context, d *schema.ResourceData, m interface{}
 }
 
 func resourceRoleUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c, _ := m.(*client.CcpClient).GetService("iam")
+	c, err := m.(*client.CcpClient).GetService("iam")
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	var diags diag.Diagnostics
 
@@ -110,7 +119,7 @@ func resourceRoleUpdate(ctx context.Context, d *schema.ResourceData, m interface
 		Group:       d.Get("group").(string),
 	}
 
-	err := (*client_iam.Client)(c).UpdateRole(d.Id(), roleUpdateRequest)
+	err = (*client_iam.Client)(c).UpdateRole(d.Id(), roleUpdateRequest)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -121,11 +130,14 @@ func resourceRoleUpdate(ctx context.Context, d *schema.ResourceData, m interface
 }
 
 func resourceRoleDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c, _ := m.(*client.CcpClient).GetService("iam")
+	c, err := m.(*client.CcpClient).GetService("iam")
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	var diags diag.Diagnostics
 
-	err := (*client_iam.Client)(c).DeleteRole(d.Id())
+	err = (*client_iam.Client)(c).DeleteRole(d.Id())
 	if err != nil {
 		return diag.FromErr(err)
 	}

@@ -54,7 +54,11 @@ func resourceSupernet() *schema.Resource {
 }
 
 func resourceSupernetRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c, _ := m.(*client.CcpClient).GetService("ip-management")
+	c, err := m.(*client.CcpClient).GetService("ip-management")
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
 	var diags diag.Diagnostics
 
 	id := d.Id()
@@ -77,7 +81,10 @@ func resourceSupernetRead(ctx context.Context, d *schema.ResourceData, m interfa
 }
 
 func resourceSupernetCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c, _ := m.(*client.CcpClient).GetService("ip-management")
+	c, err := m.(*client.CcpClient).GetService("ip-management")
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	var diags diag.Diagnostics
 
@@ -106,7 +113,10 @@ func resourceSupernetCreate(ctx context.Context, d *schema.ResourceData, m inter
 }
 
 func resourceSupernetUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c, _ := m.(*client.CcpClient).GetService("ip-management")
+	c, err := m.(*client.CcpClient).GetService("ip-management")
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	var diags diag.Diagnostics
 
@@ -120,7 +130,7 @@ func resourceSupernetUpdate(ctx context.Context, d *schema.ResourceData, m inter
 		Source:       "CANCOM-TF",
 	}
 
-	_, err := (*client_ipam.Client)(c).UpdateSupernet(id, supernet)
+	_, err = (*client_ipam.Client)(c).UpdateSupernet(id, supernet)
 
 	if err != nil {
 		return diag.FromErr(err)
@@ -134,13 +144,16 @@ func resourceSupernetUpdate(ctx context.Context, d *schema.ResourceData, m inter
 }
 
 func resourceSupernetDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c, _ := m.(*client.CcpClient).GetService("ip-management")
+	c, err := m.(*client.CcpClient).GetService("ip-management")
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	var diags diag.Diagnostics
 
 	id := d.Id()
 
-	err := (*client_ipam.Client)(c).DeleteSupernet(id)
+	err = (*client_ipam.Client)(c).DeleteSupernet(id)
 
 	if err != nil {
 		return diag.FromErr(err)

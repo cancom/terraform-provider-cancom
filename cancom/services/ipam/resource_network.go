@@ -64,7 +64,11 @@ func resourceNetwork() *schema.Resource {
 }
 
 func resourceNetworkRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c, _ := m.(*client.CcpClient).GetService("ip-management")
+	c, err := m.(*client.CcpClient).GetService("ip-management")
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
 	var diags diag.Diagnostics
 
 	id := d.Id()
@@ -88,7 +92,10 @@ func resourceNetworkRead(ctx context.Context, d *schema.ResourceData, m interfac
 }
 
 func resourceNetworkCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c, _ := m.(*client.CcpClient).GetService("ip-management")
+	c, err := m.(*client.CcpClient).GetService("ip-management")
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	var diags diag.Diagnostics
 
@@ -130,7 +137,10 @@ func resourceNetworkCreate(ctx context.Context, d *schema.ResourceData, m interf
 }
 
 func resourceNetworkUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c, _ := m.(*client.CcpClient).GetService("ip-management")
+	c, err := m.(*client.CcpClient).GetService("ip-management")
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	var diags diag.Diagnostics
 
@@ -143,7 +153,7 @@ func resourceNetworkUpdate(ctx context.Context, d *schema.ResourceData, m interf
 		//Source:      "CANCOM-TF",
 	}
 
-	_, err := (*client_ipam.Client)(c).UpdateNetwork(id, network)
+	_, err = (*client_ipam.Client)(c).UpdateNetwork(id, network)
 
 	if err != nil {
 		return diag.FromErr(err)
@@ -157,7 +167,10 @@ func resourceNetworkUpdate(ctx context.Context, d *schema.ResourceData, m interf
 }
 
 func resourceNetworkDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c, _ := m.(*client.CcpClient).GetService("ip-management")
+	c, err := m.(*client.CcpClient).GetService("ip-management")
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	var diags diag.Diagnostics
 
@@ -168,7 +181,7 @@ func resourceNetworkDelete(ctx context.Context, d *schema.ResourceData, m interf
 		HostAssign: false,
 		//Source:    "CANCOM-TF",
 	}
-	_, err := (*client_ipam.Client)(c).UpdateNetwork(id, network)
+	_, err = (*client_ipam.Client)(c).UpdateNetwork(id, network)
 	if err != nil {
 		return diag.FromErr(err)
 	}
