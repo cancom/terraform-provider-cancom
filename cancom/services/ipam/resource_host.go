@@ -55,9 +55,11 @@ func resourceHost() *schema.Resource {
 }
 
 func resourceHostRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
+	c, err := m.(*client.CcpClient).GetService("ip-management")
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
-	c.HostURL = c.ServiceURLs["ip-management"]
 	var diags diag.Diagnostics
 
 	id := d.Id()
@@ -77,9 +79,10 @@ func resourceHostRead(ctx context.Context, d *schema.ResourceData, m interface{}
 }
 
 func resourceHostCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-
-	c.HostURL = c.ServiceURLs["ip-management"]
+	c, err := m.(*client.CcpClient).GetService("ip-management")
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	var diags diag.Diagnostics
 
@@ -110,9 +113,10 @@ func resourceHostCreate(ctx context.Context, d *schema.ResourceData, m interface
 }
 
 func resourceHostUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-
-	c.HostURL = c.ServiceURLs["ip-management"]
+	c, err := m.(*client.CcpClient).GetService("ip-management")
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	var diags diag.Diagnostics
 
@@ -125,7 +129,7 @@ func resourceHostUpdate(ctx context.Context, d *schema.ResourceData, m interface
 		Source:      "CANCOM-TF",
 	}
 
-	_, err := (*client_ipam.Client)(c).UpdateHost(id, host)
+	_, err = (*client_ipam.Client)(c).UpdateHost(id, host)
 
 	if err != nil {
 		return diag.FromErr(err)
@@ -139,15 +143,16 @@ func resourceHostUpdate(ctx context.Context, d *schema.ResourceData, m interface
 }
 
 func resourceHostDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-
-	c.HostURL = c.ServiceURLs["ip-management"]
+	c, err := m.(*client.CcpClient).GetService("ip-management")
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	var diags diag.Diagnostics
 
 	id := d.Id()
 
-	err := (*client_ipam.Client)(c).DeleteHost(id)
+	err = (*client_ipam.Client)(c).DeleteHost(id)
 
 	if err != nil {
 		return diag.FromErr(err)

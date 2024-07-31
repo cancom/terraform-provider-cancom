@@ -88,8 +88,10 @@ func resourceConnection() *schema.Resource {
 }
 
 func resourceConnectionCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-	c.HostURL = c.ServiceURLs["cmsmgw"]
+	c, err := m.(*client.CcpClient).GetService("cmsmgw")
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics
@@ -174,8 +176,10 @@ func resourceConnectionCreate(ctx context.Context, d *schema.ResourceData, m int
 
 // --------------------------Read Connection------------------------------
 func resourceConnectionRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-	c.HostURL = c.ServiceURLs["cmsmgw"]
+	c, err := m.(*client.CcpClient).GetService("cmsmgw")
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics
@@ -205,8 +209,10 @@ func resourceConnectionRead(ctx context.Context, d *schema.ResourceData, m inter
 
 // --------------------------Update Connection------------------------------
 func resourceConnectionUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-	c.HostURL = c.ServiceURLs["cmsmgw"]
+	c, err := m.(*client.CcpClient).GetService("cmsmgw")
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics
@@ -287,8 +293,10 @@ func resourceConnectionUpdate(ctx context.Context, d *schema.ResourceData, m int
 
 // --------------------------Delete Connection------------------------------
 func resourceConnectionDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-	c.HostURL = c.ServiceURLs["cmsmgw"]
+	c, err := m.(*client.CcpClient).GetService("cmsmgw")
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics
@@ -296,7 +304,7 @@ func resourceConnectionDelete(ctx context.Context, d *schema.ResourceData, m int
 	//mgwId := d.Id()
 	connectionId := d.Get("id").(string)
 
-	err := (*client_cmsmgw.Client)(c).DeleteConnection(connectionId)
+	err = (*client_cmsmgw.Client)(c).DeleteConnection(connectionId)
 	if err != nil {
 		return diag.FromErr(err)
 	}

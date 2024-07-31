@@ -2,11 +2,8 @@ package cancom
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/cancom/terraform-provider-cancom/client"
-	client_iam "github.com/cancom/terraform-provider-cancom/client/services/iam"
-	client_serviceregistry "github.com/cancom/terraform-provider-cancom/client/services/service-registry"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -48,7 +45,7 @@ func Provider() *schema.Provider {
 func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 	token := d.Get("token").(string)
 	service_registry := d.Get("service_registry").(string)
-	role := d.Get("role").(string)
+	// role := d.Get("role").(string)
 
 	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics
@@ -64,38 +61,24 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 			return nil, diags
 		}
 
-		services, err := (*client_serviceregistry.Client)(c).GetAllServices()
-		if err != nil {
-			diags = append(diags, diag.Diagnostic{
-				Severity: diag.Error,
-				Summary:  "Failed to get services " + service_registry,
-				Detail:   err.Error(),
-			})
-			return nil, diags
-		}
+		// if role != "" {
+		// 	c.HostURL = c.ServiceURLs["iam"]
 
-		for _, service := range services {
-			c.ServiceURLs[service.ServiceName] = service.ServiceEndpoint.Backend
-		}
+		// 	token, err := (*client_iam.Client)(c).AssumeRole(&client_iam.AssumeRoleRequest{
+		// 		Role: role,
+		// 	})
 
-		if role != "" {
-			c.HostURL = c.ServiceURLs["iam"]
+		// 	if err != nil {
+		// 		diags = append(diags, diag.Diagnostic{
+		// 			Severity: diag.Error,
+		// 			Summary:  fmt.Sprintf("Could not assume role %s", role),
+		// 			Detail:   err.Error(),
+		// 		})
+		// 		return nil, diags
+		// 	}
 
-			token, err := (*client_iam.Client)(c).AssumeRole(&client_iam.AssumeRoleRequest{
-				Role: role,
-			})
-
-			if err != nil {
-				diags = append(diags, diag.Diagnostic{
-					Severity: diag.Error,
-					Summary:  fmt.Sprintf("Could not assume role %s", role),
-					Detail:   err.Error(),
-				})
-				return nil, diags
-			}
-
-			c.Token = token.Jwt
-		}
+		// 	c.Token = token.Jwt
+		// }
 
 		return c, diags
 	}

@@ -81,8 +81,10 @@ func resourceGateway() *schema.Resource {
 }
 
 func resourceGatewayCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-	c.HostURL = c.ServiceURLs["cmsmgw"]
+	c, err := m.(*client.CcpClient).GetService("cmsmgw")
+	if err != nil {
+		return diag.FromErr(err)
+	}
 	tflog.Info(ctx, "Creating Gateway")
 
 	// Warning or errors can be collected in a slice type
@@ -140,8 +142,10 @@ func resourceGatewayCreate(ctx context.Context, d *schema.ResourceData, m interf
 
 // --------------Gateway Read----------------------------
 func resourceGatewayRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-	c.HostURL = c.ServiceURLs["cmsmgw"]
+	c, err := m.(*client.CcpClient).GetService("cmsmgw")
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics
@@ -173,8 +177,10 @@ func resourceGatewayRead(ctx context.Context, d *schema.ResourceData, m interfac
 
 // ---------------update mgw----------------------
 func resourceGatewayUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-	c.HostURL = c.ServiceURLs["cmsmgw"]
+	c, err := m.(*client.CcpClient).GetService("cmsmgw")
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics
@@ -223,15 +229,17 @@ func resourceGatewayUpdate(ctx context.Context, d *schema.ResourceData, m interf
 
 // ----------------------delete mgw
 func resourceGatewayDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-	c.HostURL = c.ServiceURLs["cmsmgw"]
+	c, err := m.(*client.CcpClient).GetService("cmsmgw")
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics
 
 	mgwId := d.Get("id").(string)
 
-	err := (*client_cmsmgw.Client)(c).DeleteGateway(mgwId)
+	err = (*client_cmsmgw.Client)(c).DeleteGateway(mgwId)
 	if err != nil {
 		return diag.FromErr(err)
 	}
