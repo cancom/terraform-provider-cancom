@@ -5,9 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-
 	"os"
-
 	"slices"
 	"time"
 
@@ -71,28 +69,35 @@ func (c *Client) CreateWindowsDeploymentStatus(id string) (*WindowsOS_Deplyoment
 	sucessstatus := []int{4}
 
 	timeoutCount := 0
+	generalErrorCount := 0
 
 	//validation ressource. Waits until the deployment of the software has been finished.
 	//The deployment itself is run by the CANCOM Windows OS Service backend.
 	for {
-		req, err := http.NewRequest("GET", fmt.Sprintf("%s/%s/%s", c.HostURL, urlPath, id), nil)
+		req, err := http.NewRequest("GET", fmt.Sprintf("%s/%s/%s/status", c.HostURL, urlPath, id), nil)
+
 		req.Header.Add("Content-Type", "application/json")
 
 		resp, err := (*client.Client)(c).DoRequest(req)
 		if err != nil {
-
 			// allow timeouts because of long running queries in background
 			if os.IsTimeout(err) {
 				timeoutCount++
-			} else {
-				return nil, err
+			} else { // due to the long running deployments (might take some hours) we need to be tolerant for connection or other errors.
+				generalErrorCount++
 			}
 			if timeoutCount > 10 {
 				return nil, err
 			}
+			if generalErrorCount > 3 {
+				return nil, err
+			}
 		} else {
+
 			timeoutCount = 0
+			generalErrorCount = 0
 			apiResultObject := WindowsOS_Deplyoment{}
+
 			err = json.Unmarshal(resp, &apiResultObject)
 			if err != nil {
 				return nil, err

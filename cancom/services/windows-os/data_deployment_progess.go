@@ -8,7 +8,6 @@ import (
 
 func dataWindowsOSDeploymentProgress() *schema.Resource {
 	return &schema.Resource{
-
 		Read: WindowsOSDeploymentProgressRead,
 		Schema: map[string]*schema.Schema{
 			"deployment_id": {
@@ -16,6 +15,10 @@ func dataWindowsOSDeploymentProgress() *schema.Resource {
 				Required:    true,
 				ForceNew:    true,
 				Description: "ID of the deployment object.",
+			},
+			"state": {
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 		},
 	}
@@ -26,14 +29,22 @@ func WindowsOSDeploymentProgressRead(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		return err
 	}
+	// if a status is already set, we can avoid calling the endpoint again.
+	if d.Get("state").(string) == "Finished" {
+		return nil
+	} else if d.Get("state").(string) == "Failed" {
+		return nil
+	}
 
 	resp, err := (*client_windowsos.Client)(c).CreateWindowsDeploymentStatus(d.Get("deployment_id").(string))
 	if err != nil {
+		d.SetId(d.Get("deployment_id").(string))
+		d.Set("state", "Failed")
 		return err
 	}
 
 	d.SetId(resp.Id)
+	d.Set("state", "Finished")
 
 	return nil
-
 }
