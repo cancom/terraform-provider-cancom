@@ -29,8 +29,7 @@ func WindowsOSDeploymentProgressRead(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		return err
 	}
-
-	// if a status is already set, we can avoid changi
+	// if a status is already set, we can avoid calling the endpoint again.
 	if d.Get("state").(string) == "Finished" {
 		return nil
 	} else if d.Get("state").(string) == "Failed" {
