@@ -112,9 +112,10 @@ func resourceSslMonitor() *schema.Resource {
 }
 
 func resourceSslMonitorCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-
-	c.HostURL = c.ServiceURLs["ssl-monitoring"]
+	c, err := m.(*client.CcpClient).GetService("ssl-monitoring")
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	var diags diag.Diagnostics
 
@@ -150,9 +151,10 @@ func resourceSslMonitorCreate(ctx context.Context, d *schema.ResourceData, m int
 }
 
 func resourceSslMonitorRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-
-	c.HostURL = c.ServiceURLs["ssl-monitoring"]
+	c, err := m.(*client.CcpClient).GetService("ssl-monitoring")
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	var diags diag.Diagnostics
 
@@ -187,9 +189,10 @@ func resourceSslMonitorRead(ctx context.Context, d *schema.ResourceData, m inter
 }
 
 func resourceSslMonitorUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-
-	c.HostURL = c.ServiceURLs["ssl-monitoring"]
+	c, err := m.(*client.CcpClient).GetService("ssl-monitoring")
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	var diags diag.Diagnostics
 
@@ -230,9 +233,10 @@ func resourceSslMonitorUpdate(ctx context.Context, d *schema.ResourceData, m int
 }
 
 func resourceSslMonitorDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-
-	c.HostURL = c.ServiceURLs["ssl-monitoring"]
+	c, err := m.(*client.CcpClient).GetService("ssl-monitoring")
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	var diags diag.Diagnostics
 
@@ -240,7 +244,7 @@ func resourceSslMonitorDelete(ctx context.Context, d *schema.ResourceData, m int
 		ID: d.Id(),
 	}
 
-	err := (*client_sslmonitoring.Client)(c).DeleteSslMonitor(sslMonitorRequest.ID)
+	err = (*client_sslmonitoring.Client)(c).DeleteSslMonitor(sslMonitorRequest.ID)
 	if err != nil {
 		return diag.FromErr(err)
 	}

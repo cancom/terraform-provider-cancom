@@ -2,28 +2,31 @@ package client
 
 // TODO: ssl-report
 
-type CI struct {
-	CreatedAt   uint32 `json:"created_at"`
-	Heartbeat   uint32 `json:"heartbeat"`
-	ID          string `json:"id"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
+type ServiceEndpoint struct {
+	Frontend string `json:"frontend"`
+	Backend  string `json:"backend"`
 }
 
-type CreateConfigurationItemsRequestContent struct {
-	ID           string `json:"id"`
-	Name         string `json:"name"`
-	Service      string `json:"service"`
-	ResourceType string `json:"resourceType"`
-	Details      struct {
-		Description string `json:"description"`
-	} `json:"details"`
-	Tenant string `json:"tenant"`
+type Service struct {
+	ServiceName             string          `json:"serviceName"`
+	DisplayName             string          `json:"displayName"`
+	Route                   string          `json:"route"`
+	ServiceDocumentation    string          `json:"serviceDocumentation"`
+	RelatedIamPermissions   []string        `json:"relatedIamPermissions"`
+	RelatedServices         []string        `json:"relatedServices"`
+	RequiredServiceAccounts []string        `json:"requiredServiceAccounts"`
+	Keywords                []string        `json:"keywords"`
+	ServiceEndpoint         ServiceEndpoint `json:"serviceEndpoint"`
 }
 
-type DeleteConfigurationItemsRequestContent struct {
-	ID           string `json:"id"`
-	Service      string `json:"service"`
-	ResourceType string `json:"resourceType"`
-	Tenant       string `json:"tenant"`
+type CreateServiceBody struct {
+	OverwriteService        bool            `json:"overwriteService"`
+	DisplayName             string          `json:"displayName"`
+	ServiceDocumentation    string          `json:"serviceDocumentation"`
+	Route                   string          `json:"route"`
+	RelatedIamPermissions   []string        `json:"relatedIamPermissions"`
+	RelatedServices         []string        `json:"relatedServices"`
+	RequiredServiceAccounts []string        `json:"requiredServiceAccounts"`
+	Keywords                []string        `json:"keywords"`
+	ServiceEndpoint         ServiceEndpoint `json:"serviceEndpoint"`
 }

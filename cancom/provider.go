@@ -5,12 +5,12 @@ import (
 	"fmt"
 
 	"github.com/cancom/terraform-provider-cancom/client"
-	client_iam "github.com/cancom/terraform-provider-cancom/client/services/iam"
-	client_serviceregistry "github.com/cancom/terraform-provider-cancom/client/services/service-registry"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+
+	client_iam "github.com/cancom/terraform-provider-cancom/client/services/iam"
 )
 
 func Provider() *schema.Provider {
@@ -64,24 +64,14 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 			return nil, diags
 		}
 
-		services, err := (*client_serviceregistry.Client)(c).GetAllServices()
-		if err != nil {
-			diags = append(diags, diag.Diagnostic{
-				Severity: diag.Error,
-				Summary:  "Failed to get services " + service_registry,
-				Detail:   err.Error(),
-			})
-			return nil, diags
-		}
-
-		for _, service := range services {
-			c.ServiceURLs[service.ServiceName] = service.ServiceEndpoint.Backend
-		}
-
 		if role != "" {
-			c.HostURL = c.ServiceURLs["iam"]
+			iamService, err := c.GetService("iam")
 
-			token, err := (*client_iam.Client)(c).AssumeRole(&client_iam.AssumeRoleRequest{
+			if err != nil {
+				return nil, diag.FromErr(err)
+			}
+
+			token, err := (*client_iam.Client)(iamService).AssumeRole(&client_iam.AssumeRoleRequest{
 				Role: role,
 			})
 
@@ -94,7 +84,8 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 				return nil, diags
 			}
 
-			c.Token = token.Jwt
+			// set and update used token
+			c = c.WithToken(token.Jwt)
 		}
 
 		return c, diags

@@ -22,9 +22,10 @@ func dataWindowsOSDeploymentProgress() *schema.Resource {
 }
 
 func WindowsOSDeploymentProgressRead(d *schema.ResourceData, meta interface{}) error {
-	c := meta.(*client.Client)
-
-	c.HostURL = c.ServiceURLs["managed-windows"]
+	c, err := meta.(*client.CcpClient).GetService("managed-windows")
+	if err != nil {
+		return err
+	}
 
 	resp, err := (*client_windowsos.Client)(c).CreateWindowsDeploymentStatus(d.Get("deployment_id").(string))
 	if err != nil {

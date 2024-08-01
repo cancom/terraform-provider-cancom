@@ -62,9 +62,10 @@ func resourceServiceUser() *schema.Resource {
 }
 
 func resourceServiceUserCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-
-	c.HostURL = c.ServiceURLs["iam"]
+	c, err := m.(*client.CcpClient).GetService("iam")
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	var diags diag.Diagnostics
 
@@ -93,9 +94,10 @@ func resourceServiceUserCreate(ctx context.Context, d *schema.ResourceData, m in
 }
 
 func resourceServiceUserRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-
-	c.HostURL = c.ServiceURLs["iam"]
+	c, err := m.(*client.CcpClient).GetService("iam")
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	var diags diag.Diagnostics
 
@@ -116,9 +118,10 @@ func resourceServiceUserRead(ctx context.Context, d *schema.ResourceData, m inte
 }
 
 func resourceServiceUserUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-
-	c.HostURL = c.ServiceURLs["iam"]
+	c, err := m.(*client.CcpClient).GetService("iam")
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	var diags diag.Diagnostics
 
@@ -127,7 +130,7 @@ func resourceServiceUserUpdate(ctx context.Context, d *schema.ResourceData, m in
 		Group:       d.Get("group").(string),
 	}
 
-	err := (*client_iam.Client)(c).UpdateServiceUser(d.Id(), &serviceUserUpdateRequest)
+	err = (*client_iam.Client)(c).UpdateServiceUser(d.Id(), &serviceUserUpdateRequest)
 	if err != nil {
 		return diag.Errorf("Error updating user: %s", err)
 	}
@@ -138,13 +141,14 @@ func resourceServiceUserUpdate(ctx context.Context, d *schema.ResourceData, m in
 }
 
 func resourceServiceUserDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-
-	c.HostURL = c.ServiceURLs["iam"]
+	c, err := m.(*client.CcpClient).GetService("iam")
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	var diags diag.Diagnostics
 
-	err := (*client_iam.Client)(c).DeleteServiceUser(d.Id())
+	err = (*client_iam.Client)(c).DeleteServiceUser(d.Id())
 	if err != nil {
 		return diag.Errorf("Error deleting user: %s", err)
 	}

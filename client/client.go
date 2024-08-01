@@ -6,42 +6,126 @@ import (
 	"io"
 	"math/rand"
 	"net/http"
+	"sync"
 	"time"
 )
 
 const HostURL string = "https://service-registry.portal.cancom.dev/v1"
 
-type Client struct {
-	HostURL     string
-	ServiceURLs map[string]string
-	HTTPClient  *http.Client
-	Token       string
+type CcpClient struct {
+	client      *http.Client
+	services    map[string]*Client
+	serviceURLs map[string]string
+	token       string
+	initialized bool
+	mu          *sync.Mutex
 }
 
-func NewClient(host, token *string) (*Client, error) {
-	c := Client{
-		HTTPClient:  &http.Client{Timeout: 2 * time.Minute},
-		ServiceURLs: map[string]string{},
-		HostURL:     HostURL,
-	}
+type Client struct {
+	HostURL    string
+	HTTPClient *http.Client
+	token      string
+}
 
+func NewClient(host, token *string) (*CcpClient, error) {
+	serviceRegistry := HostURL
 	if host != nil {
-		c.HostURL = *host
+		serviceRegistry = *host
 	}
 
 	if token == nil {
-		return nil, fmt.Errorf("Token is required")
+		return nil, fmt.Errorf("token is required")
 	}
 
-	c.Token = *token
+	if serviceRegistry == "" {
+		return nil, fmt.Errorf("service registry is not valid, set to: %s", serviceRegistry)
+	}
+
+	c := CcpClient{
+		client:      &http.Client{Timeout: 2 * time.Minute},
+		services:    map[string]*Client{"service-registry": newHttpClient(serviceRegistry, *token)},
+		serviceURLs: map[string]string{},
+		mu:          &sync.Mutex{},
+		initialized: false,
+		token:       *token,
+	}
 
 	return &c, nil
 }
 
-func (c *Client) DoRequest(req *http.Request) ([]byte, error) {
-	token := c.Token
+// initialize the ccp client
+func (c *CcpClient) initialize() error {
+	services, err := c.getAllServices()
 
-	req.Header.Add("Authorization", "Bearer "+token)
+	if err != nil {
+		return err
+	}
+
+	for _, s := range services {
+		if s.ServiceEndpoint.Backend != "" {
+			c.serviceURLs[s.ServiceName] = s.ServiceEndpoint.Backend
+		}
+	}
+
+	c.initialized = true
+	return nil
+}
+
+func newHttpClient(host, token string) *Client {
+	return &Client{
+		HostURL:    host,
+		token:      token,
+		HTTPClient: &http.Client{Timeout: 2 * time.Minute},
+	}
+}
+
+func (c *CcpClient) WithToken(token string) *CcpClient {
+	serviceMap := map[string]*Client{}
+
+	for name, service := range c.services {
+		serviceMap[name] = newHttpClient(service.HostURL, token)
+	}
+
+	return &CcpClient{
+		client:      c.client,
+		serviceURLs: c.serviceURLs,
+		token:       token,
+		mu:          c.mu,
+		initialized: c.initialized,
+		services:    serviceMap,
+	}
+}
+
+func (c *CcpClient) GetService(name string) (*Client, error) {
+	// Get access to lock
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	if !c.initialized {
+		err := c.initialize()
+
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	serviceClient, ok := c.services[name]
+	if !ok {
+		serviceUrl, ok := c.serviceURLs[name]
+
+		if !ok {
+			return nil, fmt.Errorf("service %s is not known", name)
+		}
+
+		serviceClient = newHttpClient(serviceUrl, c.token)
+		c.services[name] = serviceClient
+	}
+
+	return serviceClient, nil
+}
+
+func (c *Client) DoRequest(req *http.Request) ([]byte, error) {
+	req.Header.Add("Authorization", "Bearer "+c.token)
 
 	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
@@ -62,14 +146,13 @@ func (c *Client) DoRequest(req *http.Request) ([]byte, error) {
 }
 
 func (c *Client) DoRequestWithRetry(req *http.Request, policy func(resp *http.Response) bool) ([]byte, error) {
-	token := c.Token
 	if policy == nil {
 		policy = func(resp *http.Response) bool {
 			return resp.StatusCode == 429
 		}
 	}
 
-	req.Header.Add("Authorization", "Bearer "+token)
+	req.Header.Add("Authorization", "Bearer "+c.token)
 
 	var bodyGetter = func() io.ReadCloser {
 		return http.NoBody

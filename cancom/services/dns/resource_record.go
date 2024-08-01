@@ -78,9 +78,10 @@ func resourceRecord() *schema.Resource {
 }
 
 func resourceRecordCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-
-	c.HostURL = c.ServiceURLs["domdns"]
+	c, err := m.(*client.CcpClient).GetService("domdns")
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	var diags diag.Diagnostics
 
@@ -119,9 +120,10 @@ func resourceRecordCreate(ctx context.Context, d *schema.ResourceData, m interfa
 }
 
 func resourceRecordRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-
-	c.HostURL = c.ServiceURLs["domdns"]
+	c, err := m.(*client.CcpClient).GetService("domdns")
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	var diags diag.Diagnostics
 
@@ -149,9 +151,10 @@ func resourceRecordRead(ctx context.Context, d *schema.ResourceData, m interface
 }
 
 func resourceRecordUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-
-	c.HostURL = c.ServiceURLs["domdns"]
+	c, err := m.(*client.CcpClient).GetService("domdns")
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	var diags diag.Diagnostics
 
@@ -172,7 +175,7 @@ func resourceRecordUpdate(ctx context.Context, d *schema.ResourceData, m interfa
 	}
 	defer resourceRecordApiLock.Unlock()
 
-	_, err := (*client_dns.Client)(c).UpdateRecord(id, record)
+	_, err = (*client_dns.Client)(c).UpdateRecord(id, record)
 
 	if err != nil {
 		return diag.FromErr(err)
@@ -186,9 +189,10 @@ func resourceRecordUpdate(ctx context.Context, d *schema.ResourceData, m interfa
 }
 
 func resourceRecordDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-
-	c.HostURL = c.ServiceURLs["domdns"]
+	c, err := m.(*client.CcpClient).GetService("domdns")
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	var diags diag.Diagnostics
 
@@ -199,7 +203,7 @@ func resourceRecordDelete(ctx context.Context, d *schema.ResourceData, m interfa
 	}
 	defer resourceRecordApiLock.Unlock()
 
-	err := (*client_dns.Client)(c).DeleteRecord(id)
+	err = (*client_dns.Client)(c).DeleteRecord(id)
 
 	if err != nil {
 		return diag.FromErr(err)

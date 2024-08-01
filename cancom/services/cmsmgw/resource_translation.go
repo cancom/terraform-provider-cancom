@@ -54,8 +54,10 @@ func resourceTranslation() *schema.Resource {
 }
 
 func resourceTranslationCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-	c.HostURL = c.ServiceURLs["cmsmgw"]
+	c, err := m.(*client.CcpClient).GetService("cmsmgw")
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics
@@ -106,8 +108,10 @@ func resourceTranslationCreate(ctx context.Context, d *schema.ResourceData, m in
 }
 
 func resourceTranslationRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-	c.HostURL = c.ServiceURLs["cmsmgw"]
+	c, err := m.(*client.CcpClient).GetService("cmsmgw")
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics
@@ -131,8 +135,10 @@ func resourceTranslationRead(ctx context.Context, d *schema.ResourceData, m inte
 }
 
 func resourceTranslationUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-	c.HostURL = c.ServiceURLs["cmsmgw"]
+	c, err := m.(*client.CcpClient).GetService("cmsmgw")
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics
@@ -189,15 +195,17 @@ func resourceTranslationUpdate(ctx context.Context, d *schema.ResourceData, m in
 }
 
 func resourceTranslationDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-	c.HostURL = c.ServiceURLs["cmsmgw"]
+	c, err := m.(*client.CcpClient).GetService("cmsmgw")
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics
 
 	translationId := d.Get("id").(string)
 
-	err := (*client_cmsmgw.Client)(c).DeleteTranslation(translationId)
+	err = (*client_cmsmgw.Client)(c).DeleteTranslation(translationId)
 	if err != nil {
 		return diag.FromErr(err)
 	}

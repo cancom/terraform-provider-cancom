@@ -57,9 +57,10 @@ func resourceUser() *schema.Resource {
 }
 
 func resourceUserCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-
-	c.HostURL = c.ServiceURLs["iam"]
+	c, err := m.(*client.CcpClient).GetService("iam")
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	var diags diag.Diagnostics
 
@@ -82,9 +83,10 @@ func resourceUserCreate(ctx context.Context, d *schema.ResourceData, m interface
 }
 
 func resourceUserRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-
-	c.HostURL = c.ServiceURLs["iam"]
+	c, err := m.(*client.CcpClient).GetService("iam")
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	var diags diag.Diagnostics
 
@@ -108,9 +110,10 @@ func resourceUserRead(ctx context.Context, d *schema.ResourceData, m interface{}
 }
 
 func resourceUserUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-
-	c.HostURL = c.ServiceURLs["iam"]
+	c, err := m.(*client.CcpClient).GetService("iam")
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	var diags diag.Diagnostics
 
@@ -123,7 +126,7 @@ func resourceUserUpdate(ctx context.Context, d *schema.ResourceData, m interface
 		Group:       d.Get("group").(string),
 	}
 
-	err := (*client_iam.Client)(c).UpdateUser(user.Principal, &userUpdateRequest)
+	err = (*client_iam.Client)(c).UpdateUser(user.Principal, &userUpdateRequest)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -134,9 +137,10 @@ func resourceUserUpdate(ctx context.Context, d *schema.ResourceData, m interface
 }
 
 func resourceUserDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-
-	c.HostURL = c.ServiceURLs["iam"]
+	c, err := m.(*client.CcpClient).GetService("iam")
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	var diags diag.Diagnostics
 
@@ -144,7 +148,7 @@ func resourceUserDelete(ctx context.Context, d *schema.ResourceData, m interface
 		Principal: d.Id(),
 	}
 
-	err := (*client_iam.Client)(c).DeleteUser(user.Principal)
+	err = (*client_iam.Client)(c).DeleteUser(user.Principal)
 	if err != nil {
 		return diag.FromErr(err)
 	}
