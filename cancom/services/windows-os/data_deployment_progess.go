@@ -8,7 +8,6 @@ import (
 
 func dataWindowsOSDeploymentProgress() *schema.Resource {
 	return &schema.Resource{
-
 		Read: WindowsOSDeploymentProgressRead,
 		Schema: map[string]*schema.Schema{
 			"deployment_id": {

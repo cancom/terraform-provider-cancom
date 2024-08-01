@@ -70,7 +70,6 @@ func (c *Client) CreateWindowsDeploymentStatus(id string) (*WindowsOS_Deplyoment
 
 	errorstatus := []int{6, 5}
 	sucessstatus := []int{4}
-	log.Printf("[WARN] Started Create Windows Deployment Status")
 
 	timeoutCount := 0
 	generalErrorCount := 0
@@ -78,14 +77,12 @@ func (c *Client) CreateWindowsDeploymentStatus(id string) (*WindowsOS_Deplyoment
 	//validation ressource. Waits until the deployment of the software has been finished.
 	//The deployment itself is run by the CANCOM Windows OS Service backend.
 	for {
-		log.Printf("[WARN] started for loop")
-		req, err := http.NewRequest("GET", fmt.Sprintf("%s/%s/%s", c.HostURL, urlPath, id), nil)
+		req, err := http.NewRequest("GET", fmt.Sprintf("%s/%s/%s/status", c.HostURL, urlPath, id), nil)
 
 		req.Header.Add("Content-Type", "application/json")
 
 		resp, err := (*client.Client)(c).DoRequest(req)
 		if err != nil {
-			log.Printf("[WARN] Error found")
 			// allow timeouts because of long running queries in background
 			if os.IsTimeout(err) {
 				timeoutCount++
@@ -105,7 +102,6 @@ func (c *Client) CreateWindowsDeploymentStatus(id string) (*WindowsOS_Deplyoment
 			apiResultObject := WindowsOS_Deplyoment{}
 
 			var sb strings.Builder
-			sb.WriteString("[WARN] Apiresult succeded  - status ")
 			sb.WriteString(strconv.Itoa(apiResultObject.Status))
 			log.Printf(sb.String())
 
