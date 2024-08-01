@@ -18,7 +18,7 @@ type CcpClient struct {
 	serviceURLs map[string]string
 	token       string
 	initialized bool
-	mu          sync.Mutex
+	mu          *sync.Mutex
 }
 
 type Client struct {
@@ -45,6 +45,7 @@ func NewClient(host, token *string) (*CcpClient, error) {
 		client:      &http.Client{Timeout: 2 * time.Minute},
 		services:    map[string]*Client{"service-registry": newHttpClient(serviceRegistry, *token)},
 		serviceURLs: map[string]string{},
+		mu:          &sync.Mutex{},
 		initialized: false,
 		token:       *token,
 	}
@@ -75,6 +76,23 @@ func newHttpClient(host, token string) *Client {
 		HostURL:    host,
 		token:      token,
 		HTTPClient: &http.Client{Timeout: 2 * time.Minute},
+	}
+}
+
+func (c *CcpClient) WithToken(token string) *CcpClient {
+	serviceMap := map[string]*Client{}
+
+	for name, service := range c.services {
+		serviceMap[name] = newHttpClient(service.HostURL, token)
+	}
+
+	return &CcpClient{
+		client:      c.client,
+		serviceURLs: c.serviceURLs,
+		token:       token,
+		mu:          c.mu,
+		initialized: c.initialized,
+		services:    serviceMap,
 	}
 }
 
