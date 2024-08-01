@@ -4,12 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"slices"
-	"strconv"
-	"strings"
 	"time"
 
 	"github.com/cancom/terraform-provider-cancom/client"
@@ -100,10 +97,6 @@ func (c *Client) CreateWindowsDeploymentStatus(id string) (*WindowsOS_Deplyoment
 			timeoutCount = 0
 			generalErrorCount = 0
 			apiResultObject := WindowsOS_Deplyoment{}
-
-			var sb strings.Builder
-			sb.WriteString(strconv.Itoa(apiResultObject.Status))
-			log.Printf(sb.String())
 
 			err = json.Unmarshal(resp, &apiResultObject)
 			if err != nil {
