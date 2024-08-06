@@ -11,6 +11,9 @@ import (
 
 func resourceWindowsOSDeployment() *schema.Resource {
 	return &schema.Resource{
+		Description: `Windows OS --- CANCOM Managed Windows Cloud Server deployment resource allows you to send metadata to CANCOM Windows Server management platform.
+
+ID and customer number need do be assigned to a created virtual machine with CANCOM Windows Images and allows the auto-registration, installation and integration to customer environment.`,
 		CreateContext: resourceWindowsOSCreate,
 		ReadContext:   resourceWindowsOSRead,
 		UpdateContext: resourceWindowsOSUpdate,
@@ -43,7 +46,7 @@ func resourceWindowsOSDeployment() *schema.Resource {
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
-				Description: "Services deployed and delivered to maschine",
+				Description: "Services deployed and delivered to machine",
 			},
 			"customer_number": {
 				Type:        schema.TypeString,

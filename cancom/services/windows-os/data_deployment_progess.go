@@ -8,6 +8,10 @@ import (
 
 func dataWindowsOSDeploymentProgress() *schema.Resource {
 	return &schema.Resource{
+		Description: `Windows OS --- This data objects waits for CANCOM Manged Windows Cloud server deployment-system to complete. 
+		
+This can be used for dependency tracking purposes and returns in case of failure errors.  
+The required` + " `deployment_id` " + `represents the id of` + " `cancom_windows_os_deployment` " + `resource.`,
 		Read: WindowsOSDeploymentProgressRead,
 		Schema: map[string]*schema.Schema{
 			"deployment_id": {

@@ -11,6 +11,7 @@ import (
 
 func resourceServiceUser() *schema.Resource {
 	return &schema.Resource{
+		Description:   "IAM --- User with long-term credentials for automation purpose.",
 		CreateContext: resourceServiceUserCreate,
 		ReadContext:   resourceServiceUserRead,
 		UpdateContext: resourceServiceUserUpdate,
@@ -25,7 +26,7 @@ func resourceServiceUser() *schema.Resource {
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "Description for what the role is used for.",
+				Description: "Description for what the service user is used for.",
 			},
 			"group": {
 				Type:        schema.TypeString,
@@ -46,6 +47,7 @@ func resourceServiceUser() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "Deprecated. Must not be used.",
+				Deprecated:  "`session_hash` is deprecated and might be removed in a future version.",
 			},
 			"created_at": {
 				Type:        schema.TypeString,
