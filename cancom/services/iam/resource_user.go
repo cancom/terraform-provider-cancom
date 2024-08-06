@@ -11,6 +11,7 @@ import (
 
 func resourceUser() *schema.Resource {
 	return &schema.Resource{
+		Description:   "IAM --- IAM user authenticated against the central CANCOM SSO.",
 		CreateContext: resourceUserCreate,
 		ReadContext:   resourceUserRead,
 		UpdateContext: resourceUserUpdate,

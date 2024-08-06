@@ -11,6 +11,8 @@ import (
 
 func resourceHost() *schema.Resource {
 	return &schema.Resource{
+		Description: `IP Management --- IPAM host allows you to assign host ip-addresses from a network that must be enabled for host assignment. The network is identified by it's id (crn).  
+You manage networks and enable them for host-assignments by using the portal or the network resource of this provider.`,
 		CreateContext: resourceHostCreate,
 		ReadContext:   resourceHostRead,
 		UpdateContext: resourceHostUpdate,

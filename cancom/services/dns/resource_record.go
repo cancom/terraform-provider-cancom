@@ -18,6 +18,7 @@ var resourceRecordApiLock = util.NewLock()
 
 func resourceRecord() *schema.Resource {
 	return &schema.Resource{
+		Description:   "DNS --- Defines a DNS record.",
 		CreateContext: resourceRecordCreate,
 		ReadContext:   resourceRecordRead,
 		UpdateContext: resourceRecordUpdate,

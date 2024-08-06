@@ -11,6 +11,7 @@ import (
 
 func resourceNetwork() *schema.Resource {
 	return &schema.Resource{
+		Description:   "IP Management --- IPAM networks are assigned by the service from supernets.",
 		CreateContext: resourceNetworkCreate,
 		ReadContext:   resourceNetworkRead,
 		UpdateContext: resourceNetworkUpdate,
