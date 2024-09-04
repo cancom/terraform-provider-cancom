@@ -46,6 +46,7 @@ func resourceNetwork() *schema.Resource {
 				Type:     schema.TypeBool,
 				Computed: false,
 				Optional: true,
+				Default:  true,
 			},
 			"prefix_str": {
 				Type:     schema.TypeString,
@@ -104,8 +105,6 @@ func resourceNetworkCreate(ctx context.Context, d *schema.ResourceData, m interf
 		Request:     d.Get("request").(string),
 		NameTag:     d.Get("name_tag").(string),
 		Description: d.Get("description").(string),
-		HostAssign:  false,
-		Source:      "CANCOM-TF",
 	}
 
 	resp, err := (*client_ipam.Client)(c).CreateNetwork(network)
@@ -119,9 +118,9 @@ func resourceNetworkCreate(ctx context.Context, d *schema.ResourceData, m interf
 	d.SetId(id)
 
 	// if hostAssign is true we must enable ist in an update to th network we just assigned
-	if d.Get("host_assign").(bool) {
+	if !d.Get("host_assign").(bool) {
 		update := &client_ipam.NetworkUpdateRequest{
-			HostAssign: true,
+			HostAssign: false,
 			//Source:    "CANCOM-TF",
 		}
 		_, update_err := (*client_ipam.Client)(c).UpdateNetwork(id, update)
@@ -150,7 +149,6 @@ func resourceNetworkUpdate(ctx context.Context, d *schema.ResourceData, m interf
 		NameTag:     d.Get("name_tag").(string),
 		Description: d.Get("description").(string),
 		HostAssign:  d.Get("host_assign").(bool),
-		//Source:      "CANCOM-TF",
 	}
 
 	_, err = (*client_ipam.Client)(c).UpdateNetwork(id, network)
