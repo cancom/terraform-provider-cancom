@@ -4,6 +4,7 @@ import (
 	"github.com/cancom/terraform-provider-cancom/cancom/services/base"
 	"github.com/cancom/terraform-provider-cancom/cancom/services/cmsmgw"
 	"github.com/cancom/terraform-provider-cancom/cancom/services/dns"
+	dynamiccloud "github.com/cancom/terraform-provider-cancom/cancom/services/dynamic-cloud"
 	"github.com/cancom/terraform-provider-cancom/cancom/services/iam"
 	"github.com/cancom/terraform-provider-cancom/cancom/services/ipam"
 	sslmonitoring "github.com/cancom/terraform-provider-cancom/cancom/services/ssl-monitoring"
@@ -15,6 +16,7 @@ func getAllProviders() []base.ProviderI {
 	return []base.ProviderI{
 		sslmonitoring.New(),
 		dns.New(),
+		dynamiccloud.New(),
 		iam.New(),
 		ipam.New(),
 		cmsmgw.New(),
