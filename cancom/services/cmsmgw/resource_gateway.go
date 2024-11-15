@@ -15,6 +15,7 @@ import (
 
 func resourceGateway() *schema.Resource {
 	return &schema.Resource{
+		Description:   "Managed Gateway --- Represents a gateway resource.",
 		CreateContext: resourceGatewayCreate,
 		ReadContext:   resourceGatewayRead,
 		UpdateContext: resourceGatewayUpdate,

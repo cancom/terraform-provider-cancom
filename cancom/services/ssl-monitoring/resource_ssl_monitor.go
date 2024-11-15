@@ -11,6 +11,7 @@ import (
 
 func resourceSslMonitor() *schema.Resource {
 	return &schema.Resource{
+		Description:   "SSL Monitoring --- A SSL monitor item.",
 		CreateContext: resourceSslMonitorCreate,
 		ReadContext:   resourceSslMonitorRead,
 		UpdateContext: resourceSslMonitorUpdate,
@@ -55,7 +56,7 @@ func resourceSslMonitor() *schema.Resource {
 			"is_managed_by_cancom": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				Description: "This item is managed by CANCOM, and a CANCOM employee is responible to renew the certificate. Can only be set by CANCOM emplyoees.",
+				Description: "This item is managed by CANCOM, and a CANCOM employee is responsible to renew the certificate. Can only be set by CANCOM employees.",
 			},
 			"protocol": {
 				Type:        schema.TypeString,
