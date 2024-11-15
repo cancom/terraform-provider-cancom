@@ -3,6 +3,7 @@ package dynamiccloud
 import (
 	"context"
 	"fmt"
+	"regexp"
 	"time"
 
 	"github.com/cancom/terraform-provider-cancom/client"
@@ -11,88 +12,77 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceVpcProject() *schema.Resource {
+	nameRegex := regexp.MustCompile("[a-zA-Zß0-9-_]+")
+	commentRegex := regexp.MustCompile("[a-zA-Zß0-9-_.,;:?!#+ ]+")
 	return &schema.Resource{
 		CreateContext: resourceVpcProjectCreate,
 		ReadContext:   resourceVpcProjectRead,
-		UpdateContext: resourceVpcProjectUpdate,
 		DeleteContext: resourceVpcProjectDelete,
 		Schema: map[string]*schema.Schema{
-			"metadata_creation_date": {
+			"creation_date": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: "Creating date of the VPC Project",
+				Description: "Timestamp of the date when the VPC Project was created.",
 			},
-			"metadata_deletion_date": {
+			"name": {
 				Type:        schema.TypeString,
-				Computed:    true,
-				Description: "Deletion date of the VPC Project",
-			},
-			"metadata_name": {
-				Type:        schema.TypeString,
-				Optional:    false,
+				Required:    true,
 				ForceNew:    true,
-				Description: "The display name which will be used as suffix for the OpenStack Project name",
+				Description: "The user customizable name which will be used to construct the OpenStack projects name with the schema '<tenant>-<name>'.\nBy changing this value the old project will be delete and a new project with the new name will be created.\nWARNING: Recreation will delete all resources in the VPC Project.",
+				ValidateDiagFunc: validation.ToDiagFunc(validation.All(
+					validation.StringLenBetween(1, 41),
+					validation.StringMatch(nameRegex, "Name may only contain (a-zA-Zß0-9-_)."),
+				)),
 			},
-			"metadata_shortid": {
+			"shortid": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: "Id of the VPC Project",
+				Description: "Short uuid of the VPC Project.",
 			},
-			"metadata_tenant": {
+			"tenant": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: "The tenant this VPC Project belongs to",
+				Description: "The id of the tenant this VPC Project belongs to.",
 			},
-			"spec_created_by": {
+			"created_by": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "CRN of the user who created the VPC Project.",
 			},
-			"spec_project_comment": {
-				Type:        schema.TypeString,
-				Required:    false,
-				ForceNew:    false,
-				Description: "Comment may be used to describe what this VPC Project is used for.",
+			"project_comment": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true, //TODO change this to false once backend supports changing the comment
+				Default:          "",
+				Description:      "A comment to describe what this VPC Project is used for.",
+				ValidateDiagFunc: validation.ToDiagFunc(validation.StringMatch(commentRegex, "project_comment may only contain (a-zA-Zß0-9-_.,;:?!#+ ).")),
 			},
-			"spec_openstack_uuid": {
+			"openstack_uuid": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "The uuid of the OpenStack Project.",
 			},
-			"spec_limits": {
+			"limits": {
 				Type:        schema.TypeMap,
 				Computed:    true,
 				Description: "The resource limits currently configured for this VPC Project.",
 				Elem: &schema.Schema{
-					Type: schema.TypeString,
+					Type: schema.TypeInt,
 				},
 			},
-			"spec_project_users": {
-				Type:        schema.TypeList,
-				Computed:    true,
-				Description: "The crns of the users to get member permissions in the VPC Project.",
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-			},
-			"spec_managed_by_service": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Optional:    true,
-				Description: "The tenant this VPC Project belongs to",
-			},
-			"status_phase": {
+			"phase": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "The phase the VPC Project is in, possible values are `Creating`, `Ready`, `Updating`, `Deleting` and `Error`.",
 			},
 		},
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(45 * time.Minute),
-			Delete: schema.DefaultTimeout(45 * time.Minute),
+			Create: schema.DefaultTimeout(5 * time.Minute),
+			Delete: schema.DefaultTimeout(15 * time.Minute),
 		},
 	}
 }
@@ -106,8 +96,12 @@ func resourceVpcProjectCreate(ctx context.Context, d *schema.ResourceData, m int
 	tflog.Info(ctx, "Creating VPC Project")
 
 	vpcProjectRequest := client_dynamiccloud.VpcProjectCreateRequest{
-		Name:           d.Get("metadata_name").(string),
-		ProjectComment: d.Get("spec_project_comment").(string),
+		Metadata: client_dynamiccloud.VpcProjectCreateMetadata{
+			Name: d.Get("name").(string),
+		},
+		Spec: client_dynamiccloud.VpcProjectCreateSpec{
+			ProjectComment: d.Get("project_comment").(string),
+		},
 	}
 
 	resp, err := (*client_dynamiccloud.Client)(c).CreateVpcProject(&vpcProjectRequest)
@@ -152,7 +146,7 @@ func resourceVpcProjectRead(ctx context.Context, d *schema.ResourceData, m inter
 	var diags diag.Diagnostics
 
 	vpcProjectShortid := d.Id()
-	
+
 	// GetVpcProject returns nil if the VPC Project is NotFound
 	resp, err := (*client_dynamiccloud.Client)(c).GetVpcProject(vpcProjectShortid)
 	if err != nil {
@@ -162,24 +156,17 @@ func resourceVpcProjectRead(ctx context.Context, d *schema.ResourceData, m inter
 		return diag.FromErr(fmt.Errorf("error describing VPC Project. VPC Project NotFound"))
 	}
 
-	d.Set("metadata_creation_date", resp.Metadata.CreationDate)
-	d.Set("metadata_deletion_date", resp.Metadata.DeletionDate)
-	d.Set("metadata_name", resp.Metadata.Name)
-	d.Set("metadata_shortid", resp.Metadata.Shortid)
-	d.Set("metadata_tenant", resp.Metadata.Tenant)
-	d.Set("spec_created_by", resp.Spec.CreatedBy)
-	d.Set("spec_project_comment", resp.Spec.ProjectComment)
-	d.Set("spec_openstack_uuid", resp.Spec.OpenstackUuid)
-	d.Set("spec_limits", resp.Spec.Limits)
-	d.Set("spec_project_users", resp.Spec.ProjectUsers)
-	d.Set("spec_managed_by_service", resp.Spec.ManagedByService)
-	d.Set("status_phase", resp.Status.Phase)
+	d.Set("creation_date", resp.Metadata.CreationDate)
+	d.Set("name", resp.Metadata.Name)
+	d.Set("shortid", resp.Metadata.Shortid)
+	d.Set("tenant", resp.Metadata.Tenant)
+	d.Set("created_by", resp.Spec.CreatedBy)
+	d.Set("project_comment", resp.Spec.ProjectComment)
+	d.Set("openstack_uuid", resp.Spec.OpenstackUuid)
+	d.Set("limits", resp.Spec.Limits)
+	d.Set("phase", resp.Status.Phase)
 
 	return diags
-}
-
-func resourceVpcProjectUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	return nil
 }
 
 func resourceVpcProjectDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {

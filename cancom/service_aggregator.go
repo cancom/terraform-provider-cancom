@@ -16,11 +16,11 @@ func getAllProviders() []base.ProviderI {
 	return []base.ProviderI{
 		sslmonitoring.New(),
 		dns.New(),
-		dynamiccloud.New(),
 		iam.New(),
 		ipam.New(),
 		cmsmgw.New(),
 		windowsos.New(),
+		dynamiccloud.New(),
 	}
 }
 
