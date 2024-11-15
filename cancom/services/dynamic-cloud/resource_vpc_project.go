@@ -38,11 +38,6 @@ func resourceVpcProject() *schema.Resource {
 					validation.StringMatch(nameRegex, "Name may only contain (a-zA-Zß0-9-_)."),
 				)),
 			},
-			"shortid": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: "Short uuid of the VPC Project.",
-			},
 			"tenant": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -158,7 +153,6 @@ func resourceVpcProjectRead(ctx context.Context, d *schema.ResourceData, m inter
 
 	d.Set("creation_date", resp.Metadata.CreationDate)
 	d.Set("name", resp.Metadata.Name)
-	d.Set("shortid", resp.Metadata.Shortid)
 	d.Set("tenant", resp.Metadata.Tenant)
 	d.Set("created_by", resp.Spec.CreatedBy)
 	d.Set("project_comment", resp.Spec.ProjectComment)
