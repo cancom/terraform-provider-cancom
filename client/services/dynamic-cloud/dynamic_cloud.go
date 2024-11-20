@@ -77,3 +77,28 @@ func (c *Client) DeleteVpcProject(id string) error {
 
 	return nil
 }
+
+func (c *Client) UpdateVpcProjectUsers(id string, users []string) (*VpcProject, error) {
+	body, err := json.Marshal(users)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", fmt.Sprintf("%s/%s/%s/Users", c.HostURL, urlPath, id), bytes.NewBuffer(body))
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := (*client.Client)(c).DoRequest(req)
+	if err != nil {
+		return nil, err
+	}
+
+	vpcProject := VpcProject{}
+	err = json.Unmarshal(resp, &vpcProject)
+	if err != nil {
+		return nil, err
+	}
+
+	return &vpcProject, nil
+}
