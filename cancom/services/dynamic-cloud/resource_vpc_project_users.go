@@ -31,10 +31,10 @@ func resourceVpcProjectUsers() *schema.Resource {
 			"users": {
 				Type:        schema.TypeSet,
 				Required:    true,
-				Description: "The list of users with access to the VPC Project.\nThe list may contains CRNs of human users and ServiceUsers created in the VPC Project.",
+				Description: "The list of users with access to the VPC Project. The list may only contains CRNs of human iam users.",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
-					// we can only validate each value and not the list, so checking the list is not empty is checked in CustomizeDiff
+					// the tf plugin sdk only allows to validate each value and not the entire list, so CustomizeDiff is used to validate the list is not empty
 					ValidateDiagFunc: validation.ToDiagFunc(validation.StringMatch(CrnRegex, "One of the users is not a valid CANCOM Resource Numbers (CRNs).")),
 				},
 			},
@@ -121,7 +121,7 @@ func resourceVpcProjectUsersUpdate(ctx context.Context, d *schema.ResourceData, 
 	d.SetId(fmt.Sprintf("%s_users", vpcProjectShortid))
 	users := setToUsers(d.Get("users").(*schema.Set))
 
-	// get VPC Project to add any serviceUsers already created in the project
+	// get VPC Project to get any serviceUsers created in the project
 	resp, err := (*client_dynamiccloud.Client)(c).GetVpcProject(vpcProjectShortid)
 	if err != nil {
 		return diag.FromErr(err)
