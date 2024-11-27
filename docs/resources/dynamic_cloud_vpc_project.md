@@ -15,10 +15,11 @@ Basic usage:
 resource "cancom_dynamic_cloud_vpc_project" "basic_usage_example" {
   name            = "test-cancom-terraform-provider"
   project_comment = "Test VPC Project created with the CANCOM Terraform provider"
+  users           = ["crn:cancom::iam:user:example.name@example.domain"]
 }
 ```
 
-This creates a VPC Project with the specified name and optionaly the comment passed.
+This creates a VPC Project with the specified name and optionaly the comment passed. The parameter users can be used to specify which user should get access to the VPC Project.
 
 ~> **Note:** Changing the `name` or `comment` will force the VPC Project to be recreated, i.e. all resources in the VPC Project will be deleted.
 
@@ -33,6 +34,7 @@ This creates a VPC Project with the specified name and optionaly the comment pas
 
 - `project_comment` (String) A comment to describe what this VPC Project is used for.</br>By changing this value the old project will be delete and a new project will be created.</br> ~> **WARNING:** Changing this value will delete all resources in the VPC Project.
 - `timeouts` (Block, Optional) (see [below for nested schema](#nestedblock--timeouts))
+- `users` (Set of String) The list of users with access to the VPC Project. The list may only contains CRNs of human iam users.
 
 ### Read-Only
 
