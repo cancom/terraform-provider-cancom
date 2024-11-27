@@ -48,7 +48,8 @@ type VpcProjectCreateMetadata struct {
 }
 
 type VpcProjectCreateSpec struct {
-	ProjectComment string `json:"projectComment"`
+	ProjectComment string   `json:"projectComment"`
+	ProjectUsers   []string `json:"projectUsers,omitempty"`
 }
 
 type VpcProjectCreateRequest struct {

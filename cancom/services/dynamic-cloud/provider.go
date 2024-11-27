@@ -20,8 +20,7 @@ func New() Provider {
 		ServiceName: "dynamic_cloud",
 		ProviderSchema: &schema.Provider{
 			ResourcesMap: map[string]*schema.Resource{
-				"vpc_project":       resourceVpcProject(),
-				"vpc_project_users": resourceVpcProjectUsers(),
+				"vpc_project": resourceVpcProject(),
 			},
 		},
 	}

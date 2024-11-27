@@ -2,6 +2,7 @@ package dynamiccloud
 
 import (
 	"context"
+	"fmt"
 	"regexp"
 	"time"
 
@@ -20,6 +21,7 @@ func resourceVpcProject() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceVpcProjectCreate,
 		ReadContext:   resourceVpcProjectRead,
+		UpdateContext: resourceVpcProjectUpdate,
 		DeleteContext: resourceVpcProjectDelete,
 		Schema: map[string]*schema.Schema{
 			"created_by": {
@@ -68,6 +70,15 @@ func resourceVpcProject() *schema.Resource {
 				Computed:    true,
 				Description: "The id of the tenant this VPC Project belongs to.",
 			},
+			"users": {
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Description: "The list of users with access to the VPC Project. The list may only contains CRNs of human iam users.",
+				Elem: &schema.Schema{
+					Type:             schema.TypeString,
+					ValidateDiagFunc: validation.ToDiagFunc(validation.StringMatch(CrnIamUserRegex, "One of the users is not a valid CANCOM Resource Number (CRN) of a human IAM user.")),
+				},
+			},
 		},
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(5 * time.Minute),
@@ -89,6 +100,7 @@ func resourceVpcProjectCreate(ctx context.Context, d *schema.ResourceData, meta 
 		},
 		Spec: client_dynamiccloud.VpcProjectCreateSpec{
 			ProjectComment: d.Get("project_comment").(string),
+			ProjectUsers:   setToUsers(d.Get("users")),
 		},
 	}
 
@@ -101,7 +113,18 @@ func resourceVpcProjectCreate(ctx context.Context, d *schema.ResourceData, meta 
 	d.SetId(vpcProjectShortid)
 
 	err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutCreate)-time.Minute, func() *resource.RetryError {
-		return WaitProjectReady(ctx, c, vpcProjectShortid)
+		resp, err := (*client_dynamiccloud.Client)(c).GetVpcProject(vpcProjectShortid)
+		if err != nil {
+			return resource.NonRetryableError(fmt.Errorf("error describing VPC Project: %s", err))
+		}
+		if resp == nil {
+			return resource.NonRetryableError(fmt.Errorf("error describing VPC Project. VPC Project 'NotFound'"))
+		}
+		if resp.Status.Phase != "Ready" {
+			tflog.Info(ctx, "Waiting for VPC Project to finish creating")
+			return resource.RetryableError(fmt.Errorf("VPC Project is still transitioning with phase '%s'", resp.Status.Phase))
+		}
+		return nil
 	})
 	if err != nil {
 		return diag.FromErr(err)
@@ -132,16 +155,78 @@ func resourceVpcProjectRead(ctx context.Context, d *schema.ResourceData, meta in
 
 	d.Set("created_by", resp.Spec.CreatedBy)
 	d.Set("creation_date", resp.Metadata.CreationDate)
+
 	err = d.Set("limits", resp.Spec.Limits)
 	if err != nil {
 		return diag.FromErr(err)
 	}
+
 	d.Set("name", resp.Metadata.Name)
 	d.Set("openstack_uuid", resp.Spec.OpenstackUuid)
 	d.Set("project_comment", resp.Spec.ProjectComment)
 	d.Set("tenant", resp.Metadata.Tenant)
 
+	humanUsers, err := getHumanUsers(resp.Metadata.Tenant, resp.Metadata.Name, resp.Spec.ProjectUsers)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	err = d.Set("users", usersToSet(humanUsers))
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
 	return diags
+}
+
+func resourceVpcProjectUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	c, err := meta.(*client.CcpClient).GetService("dynamic-cloud")
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	tflog.Info(ctx, "Updating VPC Project")
+	vpcProjectShortid := d.Id()
+	users := setToUsers(d.Get("users"))
+
+	// get VPC Project to get any serviceUsers created in the project
+	resp, err := (*client_dynamiccloud.Client)(c).GetVpcProject(vpcProjectShortid)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	if resp == nil {
+		d.SetId("")
+		return diag.Errorf("error updating VPC Project. VPC Project NotFound")
+	}
+	serviceUsers, err := getServiceUsers(resp.Metadata.Tenant, resp.Metadata.Name, resp.Spec.ProjectUsers)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	tflog.Info(ctx, "Concat svc users", map[string]interface{}{"usersForBody": append(users, serviceUsers...)})
+	_, err = (*client_dynamiccloud.Client)(c).UpdateVpcProjectUsers(vpcProjectShortid, append(users, serviceUsers...))
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutCreate)-time.Minute, func() *resource.RetryError {
+		resp, err := (*client_dynamiccloud.Client)(c).GetVpcProject(vpcProjectShortid)
+		if err != nil {
+			return resource.NonRetryableError(fmt.Errorf("error describing VPC Project: %s", err))
+		}
+		if resp == nil {
+			return resource.NonRetryableError(fmt.Errorf("error describing VPC Project. VPC Project 'NotFound'"))
+		}
+		if resp.Status.Phase != "Ready" {
+			tflog.Info(ctx, "Waiting for VPC Project to finish updating")
+			return resource.RetryableError(fmt.Errorf("VPC Project is still transitioning with phase '%s'", resp.Status.Phase))
+		}
+		return nil
+	})
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	return resourceVpcProjectRead(ctx, d, meta)
 }
 
 func resourceVpcProjectDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -160,7 +245,15 @@ func resourceVpcProjectDelete(ctx context.Context, d *schema.ResourceData, meta 
 	}
 
 	err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutDelete)-time.Minute, func() *resource.RetryError {
-		return WaitProjectDeleted(ctx, c, vpcProjectShortid)
+		resp, err := (*client_dynamiccloud.Client)(c).GetVpcProject(vpcProjectShortid)
+		if err != nil {
+			return resource.NonRetryableError(fmt.Errorf("error describing VPC Project: %s", err))
+		}
+		if resp != nil {
+			tflog.Info(ctx, "Waiting for VPC Project to finish deleting")
+			return resource.RetryableError(fmt.Errorf("VPC Project is still transitioning with phase '%s'", resp.Status.Phase))
+		}
+		return nil
 	})
 	if err != nil {
 		return diag.FromErr(err)

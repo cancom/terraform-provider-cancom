@@ -1,45 +1,22 @@
 package dynamiccloud
 
 import (
-	"context"
 	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
 
-	"github.com/cancom/terraform-provider-cancom/client"
-	client_dynamiccloud "github.com/cancom/terraform-provider-cancom/client/services/dynamic-cloud"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-var CrnRegex = regexp.MustCompile("^crn:[A-Za-z0-9]+:[A-Za-z0-9]*:[A-Za-z0-9-]+:[A-Za-z0-9-]+:[A-Za-z0-9-@.]+$")
+var CrnIamUserRegex = regexp.MustCompile("^crn:[A-Za-z0-9]+:[A-Za-z0-9]*:iam:user:[A-Za-z0-9-.]+@[A-Za-z0-9-.]+$")
 
-func GetHumanUsers(projectName string, users []string) ([]string, error) {
-	humanUsers := []string{}
-	for _, user := range users {
-		if IsUserCrn(user) {
-			humanUsers = append(humanUsers, user)
-		} else if !IsServiceUserName(user, projectName) {
-			return nil, fmt.Errorf("error parsing users - user %s is not a service user or CRN", user)
-		}
-	}
-	return humanUsers, nil
+func IsIamUserCrn(crn string) bool {
+	return CrnIamUserRegex.MatchString(crn)
 }
 
-func GetServiceUsers(projectName string, users []string) ([]string, error) {
-	serviceUsers := []string{}
-	for _, user := range users {
-		if IsServiceUserName(user, projectName) {
-			serviceUsers = append(serviceUsers, user)
-		} else if !IsUserCrn(user) {
-			return nil, fmt.Errorf("error parsing users - user %s is not a service user or CRN", user)
-		}
-	}
-	return serviceUsers, nil
-}
-
-func IsServiceUserName(userName string, projectName string) bool {
+func isVPCProjectServiceUserName(userName, tenant, projectName string) bool {
+	fullProjectName := fmt.Sprintf("%s-%s", tenant, projectName)
 	if strings.Contains(userName, "@") {
 		return false
 	}
@@ -52,60 +29,55 @@ func IsServiceUserName(userName string, projectName string) bool {
 		return false
 	}
 	return (splitUserName[0] == "svc" &&
-		splitUserName[1] == projectName &&
+		splitUserName[1] == fullProjectName &&
 		numberSuffix > 0 &&
 		numberSuffix < 10000)
 }
 
-func IsUserCrn(crn string) bool {
-	if !CrnRegex.MatchString(crn) {
-		return false
+func getHumanUsers(tenant, projectName string, users []string) ([]string, error) {
+	humanUsers := []string{}
+	for _, user := range users {
+		if IsIamUserCrn(user) {
+			humanUsers = append(humanUsers, user)
+		} else if !isVPCProjectServiceUserName(user, tenant, projectName) {
+			return nil, fmt.Errorf("error parsing users - user %s is not a service user or CRN", user)
+		}
 	}
-	splitCrn := strings.SplitN(crn, ":", 6)
-	return (splitCrn[3] == "iam" &&
-		splitCrn[4] == "user" &&
-		strings.Contains(splitCrn[5], "@"))
+	return humanUsers, nil
 }
 
-func waitProject(ctx context.Context, c *client.Client, project_id string) (string, *resource.RetryError) {
-	// GetVpcProject returns nil if the VPC Project is NotFound
-	resp, err := (*client_dynamiccloud.Client)(c).GetVpcProject(project_id)
-	if err != nil {
-		return "", resource.NonRetryableError(fmt.Errorf("error describing VPC Project: %s", err))
+func getServiceUsers(tenant, projectName string, users []string) ([]string, error) {
+	serviceUsers := []string{}
+	for _, user := range users {
+		if isVPCProjectServiceUserName(user, tenant, projectName) {
+			serviceUsers = append(serviceUsers, user)
+		} else if !IsIamUserCrn(user) {
+			return nil, fmt.Errorf("error parsing users - user %s is not a service user or CRN", user)
+		}
 	}
-	if resp == nil {
-		return "NotFound", resource.NonRetryableError(fmt.Errorf("error describing VPC Project. VPC Project 'NotFound'"))
-	}
-
-	switch resp.Status.Phase {
-	case "Error":
-		return "", resource.NonRetryableError(fmt.Errorf("error describing VPC Project. status.phase is Error"))
-	case "Ready":
-		return "Ready", nil
-	default:
-		tflog.Info(ctx, fmt.Sprintf("Waiting for VPC Project to finish %s", resp.Status.Phase))
-		return "", resource.RetryableError(fmt.Errorf("VPC Project is still transitioning with phase '%s'", resp.Status.Phase))
-	}
+	return serviceUsers, nil
 }
 
-func WaitProjectReady(ctx context.Context, c *client.Client, project_id string) *resource.RetryError {
-	phase, err := waitProject(ctx, c, project_id)
-	if err != nil {
-		return err
+func usersToSet(userList []string) *schema.Set {
+	interfaceSlice := make([]interface{}, len(userList))
+	for i, user := range userList {
+		interfaceSlice[i] = user
 	}
-	if phase != "Ready" {
-		return resource.NonRetryableError(fmt.Errorf("expected VPC Project status phase to be 'Ready' but was in phase '%s'", phase))
-	}
-	return nil
+	users := schema.NewSet(schema.HashString, interfaceSlice)
+	return users
 }
 
-func WaitProjectDeleted(ctx context.Context, c *client.Client, project_id string) *resource.RetryError {
-	phase, err := waitProject(ctx, c, project_id)
-	if phase == "NotFound" {
-		return nil
+func setToUsers(users interface{}) []string {
+	if users == nil {
+		return []string{}
 	}
-	if err != nil {
-		return err
+	usersSet := users.(*schema.Set)
+	userList := make([]string, 0, len(usersSet.List()))
+	for _, user := range usersSet.List() {
+		userList = append(userList, user.(string))
 	}
-	return resource.NonRetryableError(fmt.Errorf("expected VPC Project status phase to be 'NotFound' but was in phase '%s'", phase))
+	if userList == nil {
+		userList = []string{}
+	}
+	return userList
 }
