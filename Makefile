@@ -4,7 +4,7 @@ HOSTNAME=cancom.de
 NAMESPACE=cancom
 NAME=cancom
 BINARY=terraform-provider-${NAME}
-VERSION=0.0.1
+VERSION=0.0.3
 OS_ARCH=linux_amd64
 
 default: install
@@ -14,8 +14,9 @@ $(BIN)/%:
 	@echo "Installing tools from tools/tools.go"
 	@cat tools/tools.go | grep _ | awk -F '"' '{print $$2}' | GOBIN=$(BIN) xargs -tI {} go install {}
 
-build:
-	go build -o ${BINARY}
+build: clean
+	go build -o $(BIN)/${BINARY}
+	@sh -c "'$(CURDIR)/hack/generate-dev-overrides.sh'"
 
 release:
 	GOOS=darwin GOARCH=amd64 go build -o ./bin/${BINARY}_${VERSION}_darwin_amd64
@@ -33,7 +34,7 @@ release:
 
 install: build
 	mkdir -p ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/${OS_ARCH}
-	mv ${BINARY} ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/${OS_ARCH}
+	cp $(BIN)/${BINARY} ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/${OS_ARCH}
 
 test: 
 	go test -i $(TEST) || exit 1

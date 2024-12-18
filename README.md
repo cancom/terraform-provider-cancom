@@ -40,11 +40,10 @@ resource "cancom_dns_record" "test" {
 }
 ```
 
-Requirements
-------------
+## Requirements
 
--	[Terraform](https://www.terraform.io/downloads.html) 0.13.x or higher
--	[Go](https://golang.org/doc/install) 1.18 (to build the provider plugin)
+- [Terraform](https://www.terraform.io/downloads.html) 0.14.x or higher
+- [Go](https://golang.org/doc/install) 1.21 (to build the provider plugin)
 
 ## Building The Provider
 
@@ -58,12 +57,13 @@ $ git clone git@github.com:cancom/terraform-provider-cancom
 Enter the provider directory and build the provider
 
 ```sh
-$ cd $GOPATH/src/github.com/fastly/terraform-provider-cancom
+$ cd $GOPATH/src/github.com/cancom/terraform-provider-cancom
 $ make build
 ```
+
 ## Developing the Provider
 
-If you wish to work on the provider, you'll first need [Go](http://www.golang.org) installed on your machine (version 1.18+ is *required*).
+If you wish to work on the provider, you'll first need [Go](http://www.golang.org) installed on your machine (version 1.21+ is _required_).
 
 To compile the provider, run `make build`. This will build the provider and put the provider binary in a local `bin` directory.
 
@@ -72,10 +72,10 @@ $ make build
 ...
 ```
 
-Alongside the newly built binary a file called `developer_overrides.tfrc` will be created.  The `make build` target will communicate
+Alongside the newly built binary a file called `developer_overrides.tfrc` will be created. The `make build` target will communicate
 back details for setting the `TF_CLI_CONFIG_FILE` environment variable that will enable Terraform to use your locally built provider binary.
 
-* HashiCorp - [Development Overrides for Provider developers](https://www.terraform.io/docs/cli/config/config-file.html#development-overrides-for-provider-developers).
+- HashiCorp - [Development Overrides for Provider developers](https://www.terraform.io/docs/cli/config/config-file.html#development-overrides-for-provider-developers).
 
 > **NOTE**: If you have issues seeing any behaviours from code changes you've made to the provider, then it might be the terraform CLI is getting confused by which provider binary it should be using. Check inside the `./bin/` directory to see if there are multiple providers with different commit hashes (e.g. `terraform-provider-cancom_v1.1.0-3-fgcd28ca1`) and delete them first before running `make build`. This should help the Terraform CLI resolve to the correct binary.
 
@@ -86,18 +86,20 @@ Building the documentation copies the full markdown into the `docs` folder, read
 
 > NOTE: you'll need the [`tfplugindocs`](https://github.com/hashicorp/terraform-plugin-docs) tool for generating the Markdown to be deployed to Hashicorp. For more information on generating documentation, refer to https://www.terraform.io/docs/registry/providers/docs.html
 
-* To validate the `/template` directory structure:
+- To validate the `/template` directory structure:
+
 ```
 make validate-docs
 ```
 
-* To build the `/docs` documentation Markdown files:
+- To build the `/docs` documentation Markdown files:
+
 ```
 make generate-docs
 ```
 
-* To view the documentation:
-Paste `/docs` Markdown file content into https://registry.terraform.io/tools/doc-preview
+- To view the documentation:
+  Paste `/docs` Markdown file content into https://registry.terraform.io/tools/doc-preview
 
 Note: The description and the subcategory of resource are now automatically generated from the resource's `Description` field within the go file, similar to how the schema's arguments are generated.
 This allows you to define resources descriptions with `My Subcategory --- The description of my resource` and have the subcategory and description filled in correctly. It also works if you don't provide a subcategory, in that case, it will just populate the description.  
