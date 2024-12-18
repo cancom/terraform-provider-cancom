@@ -19,6 +19,11 @@ func resourceVpcProject() *schema.Resource {
 	nameRegex := regexp.MustCompile("[a-zA-Zß0-9-_]+")
 	commentRegex := regexp.MustCompile("[a-zA-Zß0-9-_.,;:?!#+ ]+")
 	return &schema.Resource{
+		Description: `Dynamic Cloud --- Manage Dynamic Cloud VPC Projects lifecycle
+
+This creates a VPC Project with the specified name and optionally the comment passed. The parameter users can be used to specify which user should get access to the VPC Project.
+
+~> **Note:** Changing the ` + "`name` or `comment`" + ` will force the VPC Project to be recreated, i.e. all resources in the VPC Project will be deleted.`,
 		CreateContext: resourceVpcProjectCreate,
 		ReadContext:   resourceVpcProjectRead,
 		UpdateContext: resourceVpcProjectUpdate,
