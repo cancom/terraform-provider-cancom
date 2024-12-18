@@ -8,7 +8,6 @@ type Host struct {
 	NetworkCrn  string `json:"networkCrn"`
 	NameTag     string `json:"nameTag"`
 	Description string `json:"description"`
-	Source      string `json:"source"`
 }
 
 type HostCreateRequest struct {
@@ -19,7 +18,6 @@ type HostCreateRequest struct {
 	NetworkCrn  string `json:"networkCrn"`
 	NameTag     string `json:"nameTag"`
 	Description string `json:"description"`
-	Source      string `json:"source"`
 }
 
 type HostUpdateRequest struct {
@@ -30,7 +28,6 @@ type HostUpdateRequest struct {
 	NetworkCrn  string `json:"networkCrn"`
 	NameTag     string `json:"nameTag"`
 	Description string `json:"description"`
-	Source      string `json:"source"`
 }
 
 type HostDeleteResponse struct {
@@ -46,7 +43,6 @@ type Instance struct {
 	ReleaseWaitTime string `json:"releaseWaitTime"`
 	CreatedAt       string `json:"createdAt"`
 	UpdatedAt       string `json:"updatedAt"`
-	Source          string `json:"source"`
 }
 
 type InstanceCreateRequest struct {
@@ -54,7 +50,6 @@ type InstanceCreateRequest struct {
 	ManagedBy       string `json:"managedBy"`
 	Description     string `json:"description"`
 	ReleaseWaitTime string `json:"releaseWaitTime"`
-	Source          string `json:"source"`
 }
 
 type InstanceUpdateRequest struct {
@@ -63,7 +58,6 @@ type InstanceUpdateRequest struct {
 	ID              string `json:"crn,omitempty"`
 	Description     string `json:"description"`
 	ReleaseWaitTime string `json:"releaseWaitTime"`
-	Source          string `json:"source"`
 }
 
 type InstanceDeleteResponse struct {
@@ -79,7 +73,6 @@ type Supernet struct {
 	SupernetCidr string `json:"supernetCidr"`
 	CreatedAt    string `json:"createdAt"`
 	UpdatedAt    string `json:"updatedAt"`
-	Source       string `json:"source"`
 }
 
 type SupernetCreateRequest struct {
@@ -88,7 +81,6 @@ type SupernetCreateRequest struct {
 	Description  string `json:"description"`
 	NameTag      string `json:"nameTag"`
 	SupernetCidr string `json:"supernetCidr"`
-	Source       string `json:"source"`
 }
 
 type SupernetUpdateRequest struct {
@@ -97,7 +89,6 @@ type SupernetUpdateRequest struct {
 	Description  string `json:"description"`
 	NameTag      string `json:"nameTag"`
 	SupernetCidr string `json:"supernetCidr"`
-	Source       string `json:"source"`
 }
 
 type SupernetDeleteResponse struct {
@@ -114,7 +105,6 @@ type Network struct {
 	HostAssign  bool   `json:"hostAssign"`
 	CreatedAt   string `json:"createdAt"`
 	UpdatedAt   string `json:"updatedAt"`
-	Source      string `json:"source"`
 	//HostAssign   bool	`json:hostAssign`
 }
 
@@ -124,8 +114,6 @@ type NetworkCreateRequest struct {
 	Request     string `json:"request"`
 	Description string `json:"description"`
 	NameTag     string `json:"nameTag"`
-	HostAssign  bool   `json:"hostAssign"`
-	Source      string `json:"source"`
 	//HostAssign   bool	`json:hostAssign`
 }
 
@@ -133,8 +121,7 @@ type NetworkUpdateRequest struct {
 	ID          string `json:"crn,omitempty"`
 	Description string `json:"description"`
 	NameTag     string `json:"nameTag"`
-	//Source      string `json:"source"`
-	HostAssign bool `json:"hostAssign"`
+	HostAssign  bool   `json:"hostAssign"`
 }
 
 type NetworkDeleteResponse struct {
