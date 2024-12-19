@@ -1,8 +1,7 @@
 ---
-page_title: "cancom Provider"
-subcategory: ""
+page_title: "CANCOM Provider"
 description: |-
-  
+  Terraform Provider for CANCOM
 ---
 
 # CANCOM Provider

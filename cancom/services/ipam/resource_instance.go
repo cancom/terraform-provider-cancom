@@ -11,6 +11,7 @@ import (
 
 func resourceInstance() *schema.Resource {
 	return &schema.Resource{
+		Description:   "IP Management --- An IPAM instance.",
 		CreateContext: resourceInstanceCreate,
 		ReadContext:   resourceInstanceRead,
 		UpdateContext: resourceInstanceUpdate,

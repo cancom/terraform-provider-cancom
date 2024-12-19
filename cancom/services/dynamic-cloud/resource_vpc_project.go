@@ -19,6 +19,11 @@ func resourceVpcProject() *schema.Resource {
 	nameRegex := regexp.MustCompile("[a-zA-Zß0-9-_]+")
 	commentRegex := regexp.MustCompile("[a-zA-Zß0-9-_.,;:?!#+ ]+")
 	return &schema.Resource{
+		Description: `Dynamic Cloud --- Manage Dynamic Cloud VPC Projects lifecycle
+
+This creates a Virtual Private Cloud (VPC) Project with the specified name and the optional comment. The parameter ` + "`users`" + ` can be used to specify which user should get access to the VPC Project.
+
+!> Changing the ` + "`name` or `comment`" + ` will force the VPC Project to be recreated, i.e. all resources in the VPC Project will be deleted.`,
 		CreateContext: resourceVpcProjectCreate,
 		ReadContext:   resourceVpcProjectRead,
 		UpdateContext: resourceVpcProjectUpdate,
@@ -27,12 +32,12 @@ func resourceVpcProject() *schema.Resource {
 			"created_by": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: "CRN of the user who created the VPC Project.",
+				Description: "The CRN of the user who created the VPC Project.",
 			},
 			"creation_date": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: "Timestamp of the date when the VPC Project was created.",
+				Description: "The timestamp of the date when the VPC Project was created.",
 			},
 			"limits": {
 				Type:        schema.TypeMap,
@@ -43,10 +48,13 @@ func resourceVpcProject() *schema.Resource {
 				},
 			},
 			"name": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: "The user defined name used to construct the OpenStack project name with the schema '\\<tenant\\>-\\<name\\>'.</br>By changing this value the old project will be delete and a new project with the new name will be created.</br> ~> **WARNING:** Changing this value will delete all resources in the VPC Project.",
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+				Description: `The user defined name used to construct the OpenStack project name with the schema ` + "`tenant-name`.  " + `
+By changing this value, the old project will be deleted and a new project with the new name will be created.
+
+!> Changing this value will delete all resources in the VPC Project.`,
 				ValidateDiagFunc: validation.ToDiagFunc(validation.All(
 					validation.StringLenBetween(1, 41),
 					validation.StringMatch(nameRegex, "Name may only contain (a-zA-Zß0-9-_)."),
@@ -58,11 +66,14 @@ func resourceVpcProject() *schema.Resource {
 				Description: "The uuid of the OpenStack Project.",
 			},
 			"project_comment": {
-				Type:             schema.TypeString,
-				Optional:         true,
-				ForceNew:         true,
-				Default:          "",
-				Description:      "A comment to describe what this VPC Project is used for.</br>By changing this value the old project will be delete and a new project will be created.</br> ~> **WARNING:** Changing this value will delete all resources in the VPC Project.",
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Default:  "",
+				Description: `A comment to describe what this VPC Project is used for.  
+By changing this value, the old project will be deleted and a new project will be created.
+
+!> Changing this value will delete all resources in the VPC Project.`,
 				ValidateDiagFunc: validation.ToDiagFunc(validation.StringMatch(commentRegex, "project_comment may only contain (a-zA-Zß0-9-_.,;:?!#+ ).")),
 			},
 			"tenant": {
