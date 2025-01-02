@@ -101,6 +101,11 @@ make generate-docs
 - To view the documentation:
   Paste `/docs` Markdown file content into https://registry.terraform.io/tools/doc-preview
 
+Note: The description and the subcategory of resource are now automatically generated from the resource's `Description` field within the go file, similar to how the schema's arguments are generated.
+This allows you to define resources descriptions with `My Subcategory --- The description of my resource` and have the subcategory and description filled in correctly. It also works if you don't provide a subcategory, in that case, it will just populate the description.  
+The only caveat is that you can't use additional `---` in your description.  
+Imports and examples are automatically filled in if they are placed and named correctly in `examples/{type}/{resource_name}`
+
 ## Contributing
 
 Refer to [CONTRIBUTING.md](./CONTRIBUTING.md)

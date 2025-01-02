@@ -15,6 +15,7 @@ import (
 
 func resourceTranslation() *schema.Resource {
 	return &schema.Resource{
+		Description:   "Managed Gateway --- Represents a translation resource.",
 		CreateContext: resourceTranslationCreate,
 		ReadContext:   resourceTranslationRead,
 		UpdateContext: resourceTranslationUpdate,

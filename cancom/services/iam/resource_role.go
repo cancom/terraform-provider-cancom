@@ -11,6 +11,7 @@ import (
 
 func resourceRole() *schema.Resource {
 	return &schema.Resource{
+		Description:   "IAM --- Role with short-term credentials.",
 		CreateContext: resourceRoleCreate,
 		ReadContext:   resourceRoleRead,
 		UpdateContext: resourceRoleUpdate,

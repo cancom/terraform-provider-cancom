@@ -11,6 +11,7 @@ import (
 
 func resourceSupernet() *schema.Resource {
 	return &schema.Resource{
+		Description:   "IP Management --- IPAM Supernets are larger aggregates that are further subnetted by the service.",
 		CreateContext: resourceSupernetCreate,
 		ReadContext:   resourceSupernetRead,
 		UpdateContext: resourceSupernetUpdate,

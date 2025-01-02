@@ -13,6 +13,7 @@ import (
 
 func resourcePolicy() *schema.Resource {
 	return &schema.Resource{
+		Description:   "IAM --- Generate a new IAM policy and attach it to users, service users and roles.",
 		CreateContext: resourcePolicyCreate,
 		ReadContext:   resourcePolicyRead,
 		UpdateContext: resourcePolicyUpdate,
@@ -25,6 +26,15 @@ func resourcePolicy() *schema.Resource {
 				Description: "The service name to provide permissions for.",
 			},
 			"policy": {
+				Description: `You can choose either a profile or a custom policy.   
+This block allows to setup policies using predefined profiles (` + "`policy.profile`" + `). Profile can either be ` + "`full-access`" + ` or ` + "`reader`" + `, providing either administrative access to the service, or read-only access.  
+If you want to manage policies on a find-grained basis, you can use ` + "`policy.custom`" + ` instead.
+
+~> **Note:** ` + "`profile`" + ` and ` + "`custom`" + ` are not joined into a single policy. If both are provided, ` + "`custom`" + ` is preferred over ` + "`profile`" + `, and ` + "`profile`" + ` will be ignored.
+
+~> **Note:** Either ` + "`profile`" + ` or ` + "`custom`" + ` must be provided. Otherwise, this resource will fail.
+
+.`,
 				Type:     schema.TypeList,
 				Required: true,
 				Elem: &schema.Resource{
