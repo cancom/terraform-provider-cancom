@@ -1,13 +1,13 @@
 ---
 page_title: "{{ .Name }} {{ .Type }} - {{ .ProviderName }}"
-{{ if gt (len (split .Description " --- ")) 1 -}}
-subcategory: "{{ index (split .Description " --- ") 0 }}"
+{{ if gt (len (split .Description "---")) 1 -}}
+subcategory: "{{ index (split .Description "---") 0 | trimspace }}"
 {{- else -}}
 subcategory: ""
 {{- end }}
 description: |-
-{{ if gt (len (split .Description " --- ")) 1 -}}
-{{ index (split .Description " --- ") 1 | plainmarkdown | trimspace | prefixlines "  " }}
+{{ if gt (len (split .Description "---")) 1 -}}
+{{ index (split .Description "---") 1 | plainmarkdown | trimspace | prefixlines "  " }}
 {{- else -}}
 {{ .Description | plainmarkdown | trimspace | prefixlines "  " }}
 {{- end }}
@@ -15,8 +15,8 @@ description: |-
 
 # {{ .Name }} ({{ .Type }})
 
-{{ if gt (len (split .Description " --- ")) 1 -}}
-{{ index (split .Description " --- ") 1 | trimspace }}
+{{ if gt (len (split .Description "---")) 1 -}}
+{{ index (split .Description "---") 1 | trimspace }}
 {{- else }}
 {{ .Description | trimspace }}
 {{- end }}

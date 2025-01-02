@@ -1,7 +1,7 @@
 ---
 page_title: "CANCOM Provider"
 description: |-
-  Terraform Provider for CANCOM
+  Terraform Provider for CANCOM Cloud
 ---
 
 # CANCOM Provider
