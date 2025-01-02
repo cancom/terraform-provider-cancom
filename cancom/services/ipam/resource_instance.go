@@ -92,7 +92,6 @@ func resourceInstanceCreate(ctx context.Context, d *schema.ResourceData, m inter
 		ManagedBy:       d.Get("managed_by").(string),
 		ReleaseWaitTime: d.Get("release_wait_time").(string),
 		Description:     d.Get("description").(string),
-		Source:          "CANCOM-TF",
 	}
 
 	resp, err := (*client_ipam.Client)(c).CreateInstance(instance)
@@ -126,7 +125,6 @@ func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, m inter
 		ManagedBy:       d.Get("managed_by").(string),
 		ReleaseWaitTime: d.Get("release_wait_time").(string),
 		Description:     d.Get("description").(string),
-		Source:          "CANCOM-TF",
 	}
 
 	_, err = (*client_ipam.Client)(c).UpdateInstance(id, instance)

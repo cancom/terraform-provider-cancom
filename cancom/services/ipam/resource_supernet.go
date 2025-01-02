@@ -94,7 +94,6 @@ func resourceSupernetCreate(ctx context.Context, d *schema.ResourceData, m inter
 		NameTag:      d.Get("name_tag").(string),
 		Description:  d.Get("description").(string),
 		SupernetCidr: d.Get("supernet_cidr").(string),
-		Source:       "CANCOM-TF",
 	}
 
 	resp, err := (*client_ipam.Client)(c).CreateSupernet(supernet)
@@ -128,7 +127,6 @@ func resourceSupernetUpdate(ctx context.Context, d *schema.ResourceData, m inter
 		SupernetCidr: d.Get("supernet_cidr").(string),
 		InstanceId:   d.Get("instance_id").(string),
 		Description:  d.Get("description").(string),
-		Source:       "CANCOM-TF",
 	}
 
 	_, err = (*client_ipam.Client)(c).UpdateSupernet(id, supernet)
