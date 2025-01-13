@@ -7,6 +7,7 @@ import (
 	dynamiccloud "github.com/cancom/terraform-provider-cancom/cancom/services/dynamic-cloud"
 	"github.com/cancom/terraform-provider-cancom/cancom/services/iam"
 	"github.com/cancom/terraform-provider-cancom/cancom/services/ipam"
+	"github.com/cancom/terraform-provider-cancom/cancom/services/s3"
 	sslmonitoring "github.com/cancom/terraform-provider-cancom/cancom/services/ssl-monitoring"
 	windowsos "github.com/cancom/terraform-provider-cancom/cancom/services/windows-os"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -21,6 +22,7 @@ func getAllProviders() []base.ProviderI {
 		cmsmgw.New(),
 		windowsos.New(),
 		dynamiccloud.New(),
+		s3.New(),
 	}
 }
 

@@ -8,4 +8,5 @@ var (
 	CmsMgwHostURL       = "https://cmsmgw.cc-mase-interfaces.de/dev"
 	IpManagementHostURL = "https://ip-management.portal.cancom.io"
 	WindowsOSURL        = "https://windows-os.cancom.io"
+	S3ObjectStorageURL  = "https://s3.portal.cancom.io"
 )
