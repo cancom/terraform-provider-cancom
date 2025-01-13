@@ -3,9 +3,11 @@ package s3
 import (
 	"context"
 	"encoding/json"
+	"reflect"
 
 	"github.com/cancom/terraform-provider-cancom/client"
 	client_s3 "github.com/cancom/terraform-provider-cancom/client/services/s3"
+	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -47,12 +49,32 @@ We recommend using the ` + "`jsonencode`" + ` TerraForm function to convert your
 				Description: "Description what the user is used for",
 			},
 			"permissions": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "The IAM permission document.",
+				Type:             schema.TypeString,
+				Required:         true,
+				Description:      "The IAM permission document.",
+				ValidateDiagFunc: permissionValidator,
 			},
 		},
 	}
+}
+
+func permissionValidator(data interface{}, path cty.Path) diag.Diagnostics {
+	var policy map[string]interface{}
+	err := json.Unmarshal([]byte(data.(string)), &policy)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	statement, ok := policy["Statement"]
+	if !ok {
+		return diag.Errorf("the policy must contain a statement")
+	}
+
+	if reflect.TypeOf(statement).Kind() != reflect.Slice {
+		return diag.Errorf("the statement in the permission policy must be an array")
+	}
+
+	return nil
 }
 
 func resourceUserRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
