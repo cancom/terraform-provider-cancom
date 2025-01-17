@@ -14,7 +14,7 @@ import (
 
 func resourceUser() *schema.Resource {
 	return &schema.Resource{
-		Description: `S3 --- Create a new user for the S3 API and assign permissions to the user.
+		Description: `Object Storage --- Create a new user for the S3 API and assign permissions to the user.
 
 You can set IAM policy documents that adheres to the AWS Identity and Access Management (IAM) policy structure. 
 The document defines permissions using a JSON-based format, following the official [AWS specifications](https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies.html) for IAM policies. 

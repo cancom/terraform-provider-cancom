@@ -12,7 +12,7 @@ import (
 
 func resourceBucket() *schema.Resource {
 	return &schema.Resource{
-		Description:   "S3 --- Create and manage S3 buckets. Bucket names must be globally unique. ",
+		Description:   "Object Storage --- Create and manage S3 buckets. Bucket names must be globally unique. ",
 		CreateContext: resourceBucketCreate,
 		ReadContext:   resourceBucketRead,
 		DeleteContext: resourceBucketDelete,

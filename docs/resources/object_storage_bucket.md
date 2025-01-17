@@ -1,11 +1,11 @@
 ---
-page_title: "cancom_s3_bucket Resource - terraform-provider-cancom"
-subcategory: "S3"
+page_title: "cancom_object_storage_bucket Resource - terraform-provider-cancom"
+subcategory: "Object Storage"
 description: |-
   Create and manage S3 buckets. Bucket names must be globally unique.
 ---
 
-# cancom_s3_bucket (Resource)
+# cancom_object_storage_bucket (Resource)
 
 Create and manage S3 buckets. Bucket names must be globally unique.
 

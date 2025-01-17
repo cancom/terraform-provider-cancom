@@ -1,6 +1,6 @@
 ---
-page_title: "cancom_s3_user Resource - terraform-provider-cancom"
-subcategory: "S3"
+page_title: "cancom_object_storage_user Resource - terraform-provider-cancom"
+subcategory: "Object Storage"
 description: |-
   Create a new user for the S3 API and assign permissions to the user.
   You can set IAM policy documents that adheres to the AWS Identity and Access Management (IAM) policy structure.
@@ -20,7 +20,7 @@ description: |-
   We recommend using the jsonencode TerraForm function to convert your policy document into a JSON string.
 ---
 
-# cancom_s3_user (Resource)
+# cancom_object_storage_user (Resource)
 
 Create a new user for the S3 API and assign permissions to the user.
 
