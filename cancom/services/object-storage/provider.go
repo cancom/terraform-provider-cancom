@@ -1,4 +1,4 @@
-package s3
+package object_storage
 
 import (
 	"github.com/cancom/terraform-provider-cancom/cancom/services/base"
@@ -17,7 +17,7 @@ func (p Provider) Provider() *schema.Provider {
 
 func New() Provider {
 	return Provider{
-		ServiceName: "s3",
+		ServiceName: "object_storage",
 		ProviderSchema: &schema.Provider{
 			ResourcesMap: map[string]*schema.Resource{
 				"bucket": resourceBucket(),

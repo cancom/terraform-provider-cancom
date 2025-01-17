@@ -1,4 +1,4 @@
-package client_s3
+package client_object_storage
 
 type Bucket struct {
 	BucketName        string `json:"bucketName"`

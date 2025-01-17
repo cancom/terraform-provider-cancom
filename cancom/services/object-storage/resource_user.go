@@ -1,4 +1,4 @@
-package s3
+package object_storage
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 	"reflect"
 
 	"github.com/cancom/terraform-provider-cancom/client"
-	client_s3 "github.com/cancom/terraform-provider-cancom/client/services/s3"
+	client_object_storage "github.com/cancom/terraform-provider-cancom/client/services/object-storage"
 	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -78,14 +78,14 @@ func permissionValidator(data interface{}, path cty.Path) diag.Diagnostics {
 }
 
 func resourceUserRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c, err := m.(*client.CcpClient).GetService("s3")
+	c, err := m.(*client.CcpClient).GetService("object-storage")
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
 	var diags diag.Diagnostics
 
-	resp, err := (*client_s3.Client)(c).GetUser(d.Id())
+	resp, err := (*client_object_storage.Client)(c).GetUser(d.Id())
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -103,7 +103,7 @@ func resourceUserRead(ctx context.Context, d *schema.ResourceData, m interface{}
 }
 
 func resourceUserCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c, err := m.(*client.CcpClient).GetService("s3")
+	c, err := m.(*client.CcpClient).GetService("object-storage")
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -116,13 +116,13 @@ func resourceUserCreate(ctx context.Context, d *schema.ResourceData, m interface
 		return diag.FromErr(err)
 	}
 
-	userCreateRequest := client_s3.UserCreateRequest{
+	userCreateRequest := client_object_storage.UserCreateRequest{
 		Username:    d.Get("username").(string),
 		Description: d.Get("description").(string),
 		Permissions: policy,
 	}
 
-	resp, err := (*client_s3.Client)(c).CreateUser(&userCreateRequest)
+	resp, err := (*client_object_storage.Client)(c).CreateUser(&userCreateRequest)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -136,14 +136,14 @@ func resourceUserCreate(ctx context.Context, d *schema.ResourceData, m interface
 }
 
 func resourceUserDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c, err := m.(*client.CcpClient).GetService("s3")
+	c, err := m.(*client.CcpClient).GetService("object-storage")
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
 	var diags diag.Diagnostics
 
-	err = (*client_s3.Client)(c).DeleteBucket(d.Id())
+	err = (*client_object_storage.Client)(c).DeleteUser(d.Id())
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -154,7 +154,7 @@ func resourceUserDelete(ctx context.Context, d *schema.ResourceData, m interface
 }
 
 func resourceUserUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c, err := m.(*client.CcpClient).GetService("s3")
+	c, err := m.(*client.CcpClient).GetService("object-storage")
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -169,12 +169,12 @@ func resourceUserUpdate(ctx context.Context, d *schema.ResourceData, m interface
 		return diag.FromErr(err)
 	}
 
-	user := &client_s3.UserUpdateRequest{
+	user := &client_object_storage.UserUpdateRequest{
 		Description: d.Get("description").(string),
 		Permissions: policy,
 	}
 
-	resp, err := (*client_s3.Client)(c).UpdateUser(id, user)
+	resp, err := (*client_object_storage.Client)(c).UpdateUser(id, user)
 
 	if err != nil {
 		return diag.FromErr(err)

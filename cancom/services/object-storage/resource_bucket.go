@@ -1,10 +1,10 @@
-package s3
+package object_storage
 
 import (
 	"context"
 
 	"github.com/cancom/terraform-provider-cancom/client"
-	client_s3 "github.com/cancom/terraform-provider-cancom/client/services/s3"
+	client_object_storage "github.com/cancom/terraform-provider-cancom/client/services/object-storage"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -35,14 +35,14 @@ func resourceBucket() *schema.Resource {
 }
 
 func resourceBucketRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c, err := m.(*client.CcpClient).GetService("s3")
+	c, err := m.(*client.CcpClient).GetService("object-storage")
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
 	var diags diag.Diagnostics
 
-	resp, err := (*client_s3.Client)(c).GetBucket(d.Id())
+	resp, err := (*client_object_storage.Client)(c).GetBucket(d.Id())
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -54,19 +54,19 @@ func resourceBucketRead(ctx context.Context, d *schema.ResourceData, m interface
 }
 
 func resourceBucketCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c, err := m.(*client.CcpClient).GetService("s3")
+	c, err := m.(*client.CcpClient).GetService("object-storage")
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
 	var diags diag.Diagnostics
 
-	bucketCreateRequest := client_s3.Bucket{
+	bucketCreateRequest := client_object_storage.Bucket{
 		BucketName:        d.Get("bucket_name").(string),
 		AvailabilityClass: d.Get("availability_class").(string),
 	}
 
-	resp, err := (*client_s3.Client)(c).CreateBucket(&bucketCreateRequest)
+	resp, err := (*client_object_storage.Client)(c).CreateBucket(&bucketCreateRequest)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -79,14 +79,14 @@ func resourceBucketCreate(ctx context.Context, d *schema.ResourceData, m interfa
 }
 
 func resourceBucketDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c, err := m.(*client.CcpClient).GetService("s3")
+	c, err := m.(*client.CcpClient).GetService("object-storage")
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
 	var diags diag.Diagnostics
 
-	err = (*client_s3.Client)(c).DeleteBucket(d.Id())
+	err = (*client_object_storage.Client)(c).DeleteBucket(d.Id())
 	if err != nil {
 		return diag.FromErr(err)
 	}
