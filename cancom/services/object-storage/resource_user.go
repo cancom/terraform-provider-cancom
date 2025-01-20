@@ -54,6 +54,25 @@ We recommend using the ` + "`jsonencode`" + ` TerraForm function to convert your
 				Description:      "The IAM permission document.",
 				ValidateDiagFunc: permissionValidator,
 			},
+			"include_credentials": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				ForceNew:    true,
+				Description: "Add the user credentials into the Terraform state. If set, `access_key_id` and `secret_access_key` will be populated into the state. Otherwise, an empyt string will be written to the state. Please note that, since the credentials are only available once, manually regenerated credentials will not be synchronized into the state. If you must reroll the credentials, please consider recreating the user instead.",
+			},
+			"access_key_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Sensitive:   true,
+				Description: "The access key of the user. Only included if `include_credentials` is set to true.",
+			},
+			"secret_access_key": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Sensitive:   true,
+				Description: "Secret Access Key. Only included if `include_credentials` is set to true.",
+			},
 		},
 	}
 }
@@ -131,6 +150,14 @@ func resourceUserCreate(ctx context.Context, d *schema.ResourceData, m interface
 	d.Set("username", resp.Username)
 	d.Set("description", resp.Description)
 	d.Set("permissions", resp.Permissions)
+
+	include_credentials := d.Get("include_credentials").(bool)
+
+	d.Set("include_credentials", include_credentials)
+	if include_credentials {
+		d.Set("access_key_id", resp.AccessKeyId)
+		d.Set("secret_access_key", resp.SecretAccessKey)
+	}
 
 	return diags
 }

@@ -72,7 +72,10 @@ resource "cancom_s3_user" "user" {
 ### Optional
 
 - `description` (String) Description what the user is used for
+- `include_credentials` (Boolean) Add the user credentials into the Terraform state. If set, `access_key_id` and `secret_access_key` will be populated into the state. Otherwise, an empyt string will be written to the state. Please note that, since the credentials are only available once, manually regenerated credentials will not be synchronized into the state. If you must reroll the credentials, please consider recreating the user instead.
 
 ### Read-Only
 
+- `access_key_id` (String, Sensitive) The access key of the user. Only included if `include_credentials` is set to true.
 - `id` (String) The ID of this resource.
+- `secret_access_key` (String, Sensitive) Secret Access Key. Only included if `include_credentials` is set to true.

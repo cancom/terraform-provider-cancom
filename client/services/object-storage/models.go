@@ -6,10 +6,12 @@ type Bucket struct {
 }
 
 type User struct {
-	Id          string                 `json:"id"`
-	Username    string                 `json:"username"`
-	Description string                 `json:"description"`
-	Permissions map[string]interface{} `json:"permissions"`
+	Id              string                 `json:"id"`
+	Username        string                 `json:"username"`
+	Description     string                 `json:"description"`
+	Permissions     map[string]interface{} `json:"permissions"`
+	AccessKeyId     string                 `json:"accessKey"`
+	SecretAccessKey string                 `json:"secretKey"`
 }
 
 type UserCreateRequest struct {
