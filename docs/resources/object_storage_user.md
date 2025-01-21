@@ -72,7 +72,7 @@ resource "cancom_object_storage_user" "user" {
 ### Optional
 
 - `description` (String) Description what the user is used for
-- `include_credentials` (Boolean) Add the user credentials into the Terraform state. If set, `access_key_id` and `secret_access_key` will be populated into the state. Otherwise, an empyt string will be written to the state. Please note that, since the credentials are only available once, manually regenerated credentials will not be synchronized into the state. If you must reroll the credentials, please consider recreating the user instead.
+- `include_credentials` (Boolean) Add the user credentials into the Terraform state. If set, `access_key_id` and `secret_access_key` will be populated into the state. Otherwise, an empty string will be written to the state. Please note that, since the credentials are only available once, manually regenerated credentials will not be synchronized into the state. If you must reroll the credentials, please consider recreating the user instead.
 
 ### Read-Only
 
