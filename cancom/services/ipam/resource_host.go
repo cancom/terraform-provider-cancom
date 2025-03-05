@@ -94,7 +94,6 @@ func resourceHostCreate(ctx context.Context, d *schema.ResourceData, m interface
 		Operation:   "assign_address",
 		Description: d.Get("description").(string),
 		Qualifier:   d.Get("qualifier").(string),
-		Source:      "CANCOM-TF",
 	}
 
 	resp, err := (*client_ipam.Client)(c).CreateHost(host)
@@ -128,7 +127,6 @@ func resourceHostUpdate(ctx context.Context, d *schema.ResourceData, m interface
 		NetworkCrn:  d.Get("network_crn").(string),
 		NameTag:     d.Get("name_tag").(string),
 		Description: d.Get("description").(string),
-		Source:      "CANCOM-TF",
 	}
 
 	_, err = (*client_ipam.Client)(c).UpdateHost(id, host)
