@@ -39,6 +39,9 @@ func WindowsOSDeploymentProgressRead(d *schema.ResourceData, meta interface{}) e
 	} else if d.Get("state").(string) == "Failed" {
 		return nil
 	}
+	//Set initial Sate for deployment
+	d.SetId(d.Get("deployment_id").(string))
+	d.Set("state", "Failed")
 
 	resp, err := (*client_windowsos.Client)(c).CreateWindowsDeploymentStatus(d.Get("deployment_id").(string))
 	if err != nil {
