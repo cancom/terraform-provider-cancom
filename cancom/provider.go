@@ -2,15 +2,12 @@ package cancom
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/cancom/terraform-provider-cancom/client"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-
-	client_iam "github.com/cancom/terraform-provider-cancom/client/services/iam"
 )
 
 func Provider() *schema.Provider {
@@ -54,7 +51,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 	var diags diag.Diagnostics
 
 	if token != "" {
-		c, err := client.NewClient(&service_registry, &token)
+		c, err := client.NewClient(&service_registry, &token, role)
 		if err != nil {
 			diags = append(diags, diag.Diagnostic{
 				Severity: diag.Error,
@@ -64,34 +61,10 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 			return nil, diags
 		}
 
-		if role != "" {
-			iamService, err := c.GetService("iam")
-
-			if err != nil {
-				return nil, diag.FromErr(err)
-			}
-
-			token, err := (*client_iam.Client)(iamService).AssumeRole(&client_iam.AssumeRoleRequest{
-				Role: role,
-			})
-
-			if err != nil {
-				diags = append(diags, diag.Diagnostic{
-					Severity: diag.Error,
-					Summary:  fmt.Sprintf("Could not assume role %s", role),
-					Detail:   err.Error(),
-				})
-				return nil, diags
-			}
-
-			// set and update used token
-			c = c.WithToken(token.Jwt)
-		}
-
 		return c, diags
 	}
 
-	c, err := client.NewClient(nil, nil)
+	c, err := client.NewClient(nil, nil, "")
 	if err != nil {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
