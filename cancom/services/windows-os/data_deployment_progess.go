@@ -33,12 +33,19 @@ func WindowsOSDeploymentProgressRead(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		return err
 	}
+
 	// if a status is already set, we can avoid calling the endpoint again.
 	if d.Get("state").(string) == "Finished" {
 		return nil
 	} else if d.Get("state").(string) == "Failed" {
 		return nil
+	} else if d.Get("state").(string) == "Started" {
+		return nil
 	}
+
+	// set initial status
+	d.SetId(d.Get("deployment_id").(string))
+	d.Set("state", "Started")
 
 	resp, err := (*client_windowsos.Client)(c).CreateWindowsDeploymentStatus(d.Get("deployment_id").(string))
 	if err != nil {
