@@ -54,11 +54,11 @@ func resourceNetwork() *schema.Resource {
 				Computed: true,
 			},
 			"created_at": {
-				Type:     schema.TypeString,
+				Type:     schema.TypeInt,
 				Computed: true,
 			},
 			"updated_at": {
-				Type:     schema.TypeString,
+				Type:     schema.TypeInt,
 				Computed: true,
 			},
 		},
