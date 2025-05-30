@@ -20,8 +20,10 @@ func New() Provider {
 		ServiceName: "windows_os",
 		ProviderSchema: &schema.Provider{
 			ResourcesMap: map[string]*schema.Resource{
-				"deployment": resourceWindowsOSDeployment(),
+				"deployment":          resourceWindowsOSDeployment(),
+				"deployment_progress": resourceWindowsOSDeploymentProgress(),
 			},
+
 			DataSourcesMap: map[string]*schema.Resource{
 				"deployment_progress": dataWindowsOSDeploymentProgress(),
 			},

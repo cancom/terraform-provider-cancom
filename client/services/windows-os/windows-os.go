@@ -103,10 +103,53 @@ func (c *Client) CreateWindowsDeploymentStatus(id string) (*WindowsOS_Deplyoment
 				return nil, err
 			}
 			if slices.Contains(errorstatus, apiResultObject.Status) {
+				err = fmt.Errorf("deployment for ID %s failed with statuscode %d", apiResultObject.Id, apiResultObject.Status)
 				return nil, err
 			} else if slices.Contains(sucessstatus, apiResultObject.Status) {
 				return &apiResultObject, nil
 			}
+		}
+		time.Sleep(30 * time.Second) // sleep for 30 seconds to aviod active waiting
+	}
+}
+
+func (c *Client) GetWindowsDeploymentStatus(id string) (*WindowsOS_Deplyoment, error) {
+
+	timeoutCount := 0
+	generalErrorCount := 0
+
+	//validation ressource. Waits until the deployment of the software has been finished.
+	//The deployment itself is run by the CANCOM Windows OS Service backend.
+	for {
+		req, err := http.NewRequest("GET", fmt.Sprintf("%s/%s/%s/status", c.HostURL, urlPath, id), nil)
+
+		req.Header.Add("Content-Type", "application/json")
+
+		resp, err := (*client.Client)(c).DoRequest(req)
+		if err != nil {
+			// allow timeouts because of long running queries in background
+			if os.IsTimeout(err) {
+				timeoutCount++
+			} else { // due to the long running deployments (might take some hours) we need to be tolerant for connection or other errors.
+				generalErrorCount++
+			}
+			if timeoutCount > 10 {
+				return nil, err
+			}
+			if generalErrorCount > 3 {
+				return nil, err
+			}
+		} else {
+
+			timeoutCount = 0
+			generalErrorCount = 0
+			apiResultObject := WindowsOS_Deplyoment{}
+
+			err = json.Unmarshal(resp, &apiResultObject)
+			if err != nil {
+				return nil, err
+			}
+			return &apiResultObject, nil
 		}
 		time.Sleep(30 * time.Second) // sleep for 30 seconds to aviod active waiting
 	}
