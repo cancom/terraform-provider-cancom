@@ -41,7 +41,7 @@ The required` + " `deployment_id` " + `represents the id of` + " `cancom_windows
 				Optional: true,
 				Default:  "error",
 				Description: `The errorhandling of deployment errors is configurable. If the output should be just warining and no interruption of the process is needed, please set the value to warning.
-				
+
 				!> For multi staged deployments the value error is highly recommended.`,
 				ValidateDiagFunc: validation.ToDiagFunc(validation.StringMatch(regexp.MustCompile("error|warning"), "errorhandling may only contain error or warning")),
 			},
@@ -67,15 +67,7 @@ func resourceWindowsOSDeploymentProgressCreate(ctx context.Context, d *schema.Re
 		resp, err := (*client_windowsos.Client)(c).GetWindowsDeploymentStatus(deployment_id)
 		if err != nil {
 			d.Set("status", "Failed")
-
-			return diag.Diagnostics{
-				{
-					Severity: diag.Warning,
-					Summary:  "Deployment failed - please review",
-					Detail:   err.Error(),
-				},
-			}
-
+			return diag.FromErr(err)
 		}
 		if slices.Contains(errorstatus, resp.Status) {
 			err = fmt.Errorf("deployment for ID %s failed with statuscode %d", resp.Id, resp.Status)
@@ -99,7 +91,6 @@ func resourceWindowsOSDeploymentProgressCreate(ctx context.Context, d *schema.Re
 		}
 		time.Sleep(10 * time.Second) // sleep for 30 seconds to aviod active waiting
 	}
-
 }
 
 func resourceWindowsOSDeploymentProgressRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
