@@ -431,7 +431,7 @@ func (c *Client) DeleteHost(hostId string) error {
 		return err
 	}
 	// included to find a sporadic problem leading to resources not released in the backend
-	if delResponse.Message != "Item released successfully" {
+	if delResponse.Message != "Item released successfully" && delResponse.Message != "released successfully" {
 		return errors.New("message: " + delResponse.Message)
 	}
 
