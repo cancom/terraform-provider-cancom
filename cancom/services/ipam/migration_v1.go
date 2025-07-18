@@ -51,19 +51,27 @@ func instanceUpgradeV0() schema.StateUpgrader {
 		Version: 0,
 		Upgrade: func(ctx context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
 			if val, ok := rawState["updated_at"].(string); ok {
-				i, err := time.Parse("2006-01-02T15:04:05", val)
-				if err != nil {
-					return rawState, fmt.Errorf("error converting updated_at to int: %w", err)
+				if val != "" {
+					i, err := time.Parse("2006-01-02T15:04:05", val)
+					if err != nil {
+						return rawState, fmt.Errorf("error converting updated_at to int: %w", err)
+					}
+					rawState["updated_at"] = int(i.Unix())
+				} else {
+					rawState["updated_at"] = nil
 				}
-				rawState["updated_at"] = int(i.Unix())
 			}
 
 			if val, ok := rawState["created_at"].(string); ok {
-				i, err := time.Parse("2006-01-02T15:04:05", val)
-				if err != nil {
-					return rawState, fmt.Errorf("error converting created_at to int: %w", err)
+				if val != "" {
+					i, err := time.Parse("2006-01-02T15:04:05", val)
+					if err != nil {
+						return rawState, fmt.Errorf("error converting created_at to int: %w", err)
+					}
+					rawState["created_at"] = int(i.Unix())
+				} else {
+					rawState["created_at"] = nil
 				}
-				rawState["created_at"] = int(i.Unix())
 			}
 
 			if val, ok := rawState["release_wait_time"].(string); ok {
