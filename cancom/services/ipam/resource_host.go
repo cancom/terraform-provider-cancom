@@ -91,7 +91,7 @@ func resourceHostCreate(ctx context.Context, d *schema.ResourceData, m interface
 	host := &client_ipam.HostCreateRequest{
 		NetworkCrn:  d.Get("network_crn").(string),
 		NameTag:     d.Get("name_tag").(string),
-		Operation:   "assign_address",
+		Operation:   "assignAddress",
 		Description: d.Get("description").(string),
 		Qualifier:   d.Get("qualifier").(string),
 	}
