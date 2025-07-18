@@ -57,12 +57,10 @@ func resourceNetwork() *schema.Resource {
 			"created_at": {
 				Type:     schema.TypeInt,
 				Computed: true,
-				Optional: true,
 			},
 			"updated_at": {
 				Type:     schema.TypeInt,
 				Computed: true,
-				Optional: true,
 			},
 		},
 		StateUpgraders: []schema.StateUpgrader{

@@ -31,10 +31,10 @@ resource "cancom_ipam_instance" "tfcreated01" {
 ### Optional
 
 - `description` (String)
-- `release_wait_time` (String)
+- `release_wait_time` (Number)
 
 ### Read-Only
 
-- `created_at` (String)
+- `created_at` (Number)
 - `id` (String) The ID of this resource.
-- `updated_at` (String)
+- `updated_at` (Number)
