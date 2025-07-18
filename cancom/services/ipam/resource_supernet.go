@@ -16,6 +16,7 @@ func resourceSupernet() *schema.Resource {
 		ReadContext:   resourceSupernetRead,
 		UpdateContext: resourceSupernetUpdate,
 		DeleteContext: resourceSupernetDelete,
+		SchemaVersion: 1,
 		Schema: map[string]*schema.Schema{
 			"id": {
 				Type:     schema.TypeString,
@@ -50,6 +51,9 @@ func resourceSupernet() *schema.Resource {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
+		},
+		StateUpgraders: []schema.StateUpgrader{
+			supernetUpgradeV0(),
 		},
 	}
 }

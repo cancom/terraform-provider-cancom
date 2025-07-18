@@ -16,6 +16,7 @@ func resourceInstance() *schema.Resource {
 		ReadContext:   resourceInstanceRead,
 		UpdateContext: resourceInstanceUpdate,
 		DeleteContext: resourceInstanceDelete,
+		SchemaVersion: 1,
 		Schema: map[string]*schema.Schema{
 			"id": {
 				Type:     schema.TypeString,
@@ -44,11 +45,16 @@ func resourceInstance() *schema.Resource {
 			"created_at": {
 				Type:     schema.TypeInt,
 				Computed: true,
+				Optional: true,
 			},
 			"updated_at": {
 				Type:     schema.TypeInt,
 				Computed: true,
+				Optional: true,
 			},
+		},
+		StateUpgraders: []schema.StateUpgrader{
+			instanceUpgradeV0(),
 		},
 	}
 }

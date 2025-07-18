@@ -16,6 +16,7 @@ func resourceNetwork() *schema.Resource {
 		ReadContext:   resourceNetworkRead,
 		UpdateContext: resourceNetworkUpdate,
 		DeleteContext: resourceNetworkDelete,
+		SchemaVersion: 1,
 		Schema: map[string]*schema.Schema{
 			"id": {
 				Type:     schema.TypeString,
@@ -56,11 +57,16 @@ func resourceNetwork() *schema.Resource {
 			"created_at": {
 				Type:     schema.TypeInt,
 				Computed: true,
+				Optional: true,
 			},
 			"updated_at": {
 				Type:     schema.TypeInt,
 				Computed: true,
+				Optional: true,
 			},
+		},
+		StateUpgraders: []schema.StateUpgrader{
+			networkUpgradeV0(),
 		},
 	}
 }
