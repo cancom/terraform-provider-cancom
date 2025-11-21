@@ -46,7 +46,7 @@ resource "cancom_ipam_network" "tfnetwork01" {
 
 ### Read-Only
 
-- `created_at` (String)
+- `created_at` (Number)
 - `id` (String) The ID of this resource.
 - `prefix_str` (String)
-- `updated_at` (String)
+- `updated_at` (Number)

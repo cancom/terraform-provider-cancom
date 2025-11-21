@@ -16,6 +16,7 @@ func resourceInstance() *schema.Resource {
 		ReadContext:   resourceInstanceRead,
 		UpdateContext: resourceInstanceUpdate,
 		DeleteContext: resourceInstanceDelete,
+		SchemaVersion: 1,
 		Schema: map[string]*schema.Schema{
 			"id": {
 				Type:     schema.TypeString,
@@ -37,17 +38,21 @@ func resourceInstance() *schema.Resource {
 				Optional: true,
 			},
 			"release_wait_time": {
-				Type:     schema.TypeString,
+				Type:     schema.TypeInt,
+				Default:  0,
 				Optional: true,
 			},
 			"created_at": {
-				Type:     schema.TypeString,
+				Type:     schema.TypeInt,
 				Computed: true,
 			},
 			"updated_at": {
-				Type:     schema.TypeString,
+				Type:     schema.TypeInt,
 				Computed: true,
 			},
+		},
+		StateUpgraders: []schema.StateUpgrader{
+			instanceUpgradeV0(),
 		},
 	}
 }
@@ -90,7 +95,7 @@ func resourceInstanceCreate(ctx context.Context, d *schema.ResourceData, m inter
 	instance := &client_ipam.InstanceCreateRequest{
 		NameTag:         d.Get("name_tag").(string),
 		ManagedBy:       d.Get("managed_by").(string),
-		ReleaseWaitTime: d.Get("release_wait_time").(string),
+		ReleaseWaitTime: d.Get("release_wait_time").(int),
 		Description:     d.Get("description").(string),
 	}
 
@@ -123,7 +128,7 @@ func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, m inter
 	instance := &client_ipam.InstanceUpdateRequest{
 		NameTag:         d.Get("name_tag").(string),
 		ManagedBy:       d.Get("managed_by").(string),
-		ReleaseWaitTime: d.Get("release_wait_time").(string),
+		ReleaseWaitTime: d.Get("release_wait_time").(int),
 		Description:     d.Get("description").(string),
 	}
 
