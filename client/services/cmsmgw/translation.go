@@ -17,7 +17,7 @@ func (c *Client) GetTranslation(translationId string) (*Translation, error) {
 		return nil, err
 	}
 
-	body, err := (*client.Client)(c).DoRequest(req)
+	body, err := (*client.Client)(c).DoRequest(req, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -43,7 +43,7 @@ func (c *Client) CreateTranslation(translation *TranslationCreateRequest) (*Tran
 		return nil, err
 	}
 
-	body, err := (*client.Client)(c).DoRequest(req)
+	body, err := (*client.Client)(c).DoRequest(req, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -69,7 +69,7 @@ func (c *Client) UpdateTranslation(translationId string, translation *Translatio
 		return nil, err
 	}
 
-	body, err := (*client.Client)(c).DoRequest(req)
+	body, err := (*client.Client)(c).DoRequest(req, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -89,7 +89,7 @@ func (c *Client) DeleteTranslation(translationId string) error {
 		return err
 	}
 
-	body, err := (*client.Client)(c).DoRequest(req)
+	body, err := (*client.Client)(c).DoRequest(req, nil)
 	if err != nil {
 		return err
 	}

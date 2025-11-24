@@ -17,7 +17,7 @@ func (c *Client) GetUser(id string) (*User, error) {
 		return nil, err
 	}
 
-	body, err := (*client.Client)(c).DoRequest(req)
+	body, err := (*client.Client)(c).DoRequest(req, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +42,7 @@ func (c *Client) CreateUser(userCreateRequest *UserCreateRequest) (*UserCreateRe
 		return nil, err
 	}
 
-	resp, err := (*client.Client)(c).DoRequest(req)
+	resp, err := (*client.Client)(c).DoRequest(req, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +67,7 @@ func (c *Client) UpdateUser(id string, userUpdateRequest *UserUpdateRequest) err
 		return err
 	}
 
-	_, err = (*client.Client)(c).DoRequest(req)
+	_, err = (*client.Client)(c).DoRequest(req, nil)
 	if err != nil {
 		return err
 	}
@@ -81,7 +81,7 @@ func (c *Client) DeleteUser(id string) error {
 		return err
 	}
 
-	_, err = (*client.Client)(c).DoRequest(req)
+	_, err = (*client.Client)(c).DoRequest(req, nil)
 	if err != nil {
 		return err
 	}
@@ -95,7 +95,7 @@ func (c *Client) GetServiceUser(id string) (*ServiceUser, error) {
 		return nil, err
 	}
 
-	body, err := (*client.Client)(c).DoRequest(req)
+	body, err := (*client.Client)(c).DoRequest(req, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -120,7 +120,7 @@ func (c *Client) CreateServiceUser(serviceUserCreateRequest *ServiceUserCreateRe
 		return nil, err
 	}
 
-	resp, err := (*client.Client)(c).DoRequest(req)
+	resp, err := (*client.Client)(c).DoRequest(req, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -145,7 +145,7 @@ func (c *Client) UpdateServiceUser(id string, serviceUserUpdateRequest *ServiceU
 		return err
 	}
 
-	_, err = (*client.Client)(c).DoRequest(req)
+	_, err = (*client.Client)(c).DoRequest(req, nil)
 	if err != nil {
 		return err
 	}
@@ -159,7 +159,7 @@ func (c *Client) DeleteServiceUser(id string) error {
 		return err
 	}
 
-	_, err = (*client.Client)(c).DoRequest(req)
+	_, err = (*client.Client)(c).DoRequest(req, nil)
 	if err != nil {
 		return err
 	}
@@ -173,7 +173,7 @@ func (c *Client) GetRole(id string) (*Role, error) {
 		return nil, err
 	}
 
-	body, err := (*client.Client)(c).DoRequest(req)
+	body, err := (*client.Client)(c).DoRequest(req, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -198,7 +198,7 @@ func (c *Client) CreateRole(roleCreateRequest *RoleCreateRequest) (*RoleCreateRe
 		return nil, err
 	}
 
-	resp, err := (*client.Client)(c).DoRequest(req)
+	resp, err := (*client.Client)(c).DoRequest(req, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -223,7 +223,7 @@ func (c *Client) UpdateRole(id string, roleUpdateRequest *RoleUpdateRequest) err
 		return err
 	}
 
-	_, err = (*client.Client)(c).DoRequest(req)
+	_, err = (*client.Client)(c).DoRequest(req, nil)
 	if err != nil {
 		return err
 	}
@@ -237,7 +237,7 @@ func (c *Client) DeleteRole(id string) error {
 		return err
 	}
 
-	_, err = (*client.Client)(c).DoRequest(req)
+	_, err = (*client.Client)(c).DoRequest(req, nil)
 	if err != nil {
 		return err
 	}
@@ -256,7 +256,7 @@ func (c *Client) AssignPolicyToUser(policyRequest *PolicyRequest, principal stri
 		return err
 	}
 
-	_, err = (*client.Client)(c).DoRequest(req)
+	_, err = (*client.Client)(c).DoRequest(req, nil)
 	if err != nil {
 		return err
 	}
@@ -276,7 +276,7 @@ func (c *Client) RemovePolicyFromUser(PolicyRequest *PolicyRequest, principal st
 		return err
 	}
 
-	_, err = (*client.Client)(c).DoRequest(req)
+	_, err = (*client.Client)(c).DoRequest(req, nil)
 	if err != nil {
 		return err
 	}
@@ -297,7 +297,7 @@ func (c *Client) AssumeRole(role *AssumeRoleRequest) (*AssumeRoleResponse, error
 		return nil, err
 	}
 
-	resp, err := (*client.Client)(c).DoRequest(req)
+	resp, err := (*client.Client)(c).DoRequest(req, nil)
 	if err != nil {
 		return nil, err
 	}

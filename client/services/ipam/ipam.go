@@ -24,7 +24,7 @@ func (c *Client) GetNetwork(networkId string) (*Network, error) {
 		return nil, err
 	}
 
-	body, err := (*client.Client)(c).DoRequest(req)
+	body, err := (*client.Client)(c).DoRequest(req, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -81,7 +81,7 @@ func (c *Client) UpdateNetwork(networkId string, network *NetworkUpdateRequest) 
 		return nil, err
 	}
 
-	body, err := (*client.Client)(c).DoRequest(req)
+	body, err := (*client.Client)(c).DoRequest(req, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -129,7 +129,7 @@ func (c *Client) GetSupernet(supernetId string) (*Supernet, error) {
 		return nil, err
 	}
 
-	body, err := (*client.Client)(c).DoRequest(req)
+	body, err := (*client.Client)(c).DoRequest(req, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -236,7 +236,7 @@ func (c *Client) GetInstance(instanceId string) (*Instance, error) {
 		return nil, err
 	}
 
-	body, err := (*client.Client)(c).DoRequest(req)
+	body, err := (*client.Client)(c).DoRequest(req, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -268,7 +268,7 @@ func (c *Client) CreateInstance(instance *InstanceCreateRequest) (*Instance, err
 		return nil, err
 	}
 
-	body, err := (*client.Client)(c).DoRequest(req)
+	body, err := (*client.Client)(c).DoRequest(req, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -295,7 +295,7 @@ func (c *Client) UpdateInstance(instanceId string, instance *InstanceUpdateReque
 		return nil, err
 	}
 
-	body, err := (*client.Client)(c).DoRequest(req)
+	body, err := (*client.Client)(c).DoRequest(req, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -316,7 +316,7 @@ func (c *Client) DeleteInstance(instanceId string) error {
 		return err
 	}
 
-	body, err := (*client.Client)(c).DoRequest(req)
+	body, err := (*client.Client)(c).DoRequest(req, nil)
 	if err != nil {
 		return err
 	}
@@ -343,7 +343,7 @@ func (c *Client) GetHost(hostId string) (*Host, error) {
 		return nil, err
 	}
 
-	body, err := (*client.Client)(c).DoRequest(req)
+	body, err := (*client.Client)(c).DoRequest(req, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -420,7 +420,9 @@ func (c *Client) DeleteHost(hostId string) error {
 		return err
 	}
 
-	body, err := (*client.Client)(c).DoRequestWithRetry(req, nil)
+	body, err := (*client.Client)(c).DoRequestWithRetry(req, &client.RequestWithRetryOptions{
+		StatusCodes: &[]int{http.StatusOK, http.StatusAccepted, http.StatusNotFound},
+	})
 	if err != nil {
 		return err
 	}
@@ -430,8 +432,9 @@ func (c *Client) DeleteHost(hostId string) error {
 	if err != nil {
 		return err
 	}
+
 	// included to find a sporadic problem leading to resources not released in the backend
-	if delResponse.Message != "Item released successfully" && delResponse.Message != "released successfully" {
+	if delResponse.Message != "Item released successfully" && delResponse.Message != "released successfully" && delResponse.Message != "Host not found" {
 		return errors.New("message: " + delResponse.Message)
 	}
 

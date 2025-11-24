@@ -16,7 +16,7 @@ func (c *Client) GetConnection(connectionID string) (*Connection, error) {
 		return nil, err
 	}
 
-	body, err := (*client.Client)(c).DoRequest(req)
+	body, err := (*client.Client)(c).DoRequest(req, nil)
 	/*err2 := fmt.Errorf("status: %d, body: %s", 404, body)
 	  if (err != nil) || (err2 != nil) {
 	      return nil, err2
@@ -46,7 +46,7 @@ func (c *Client) CreateConnection(connection *ConnectionCreateRequest) (*Connect
 		return nil, err
 	}
 
-	body, err := (*client.Client)(c).DoRequest(req)
+	body, err := (*client.Client)(c).DoRequest(req, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -72,7 +72,7 @@ func (c *Client) UpdateConnection(connectionId string, connection *ConnectionUpd
 		return nil, err
 	}
 
-	body, err := (*client.Client)(c).DoRequest(req)
+	body, err := (*client.Client)(c).DoRequest(req, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -93,7 +93,7 @@ func (c *Client) DeleteConnection(connectionID string) error {
 		return err
 	}
 
-	body, err := (*client.Client)(c).DoRequest(req)
+	body, err := (*client.Client)(c).DoRequest(req, nil)
 	if err != nil {
 		return err
 	}

@@ -17,7 +17,7 @@ func (c *Client) GetZone(id string) (*Zone, error) {
 		return nil, err
 	}
 
-	body, err := (*client.Client)(c).DoRequest(req)
+	body, err := (*client.Client)(c).DoRequest(req, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -37,7 +37,7 @@ func (c *Client) GetAllZones() ([]Zone, error) {
 		return nil, err
 	}
 
-	body, err := (*client.Client)(c).DoRequest(req)
+	body, err := (*client.Client)(c).DoRequest(req, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +57,7 @@ func (c *Client) GetRecord(id string, zoneName string) (*Record, error) {
 		return nil, err
 	}
 
-	body, err := (*client.Client)(c).DoRequest(req)
+	body, err := (*client.Client)(c).DoRequest(req, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -77,7 +77,7 @@ func (c *Client) GetAllRecords() ([]Record, error) {
 		return nil, err
 	}
 
-	body, err := (*client.Client)(c).DoRequest(req)
+	body, err := (*client.Client)(c).DoRequest(req, nil)
 	if err != nil {
 		return nil, err
 	}

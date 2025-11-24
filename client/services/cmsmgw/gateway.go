@@ -18,7 +18,7 @@ func (c *Client) GetGateway(mgwID string) (*Gateway, error) {
 		return nil, err
 	}
 
-	body, err := (*client.Client)(c).DoRequest(req)
+	body, err := (*client.Client)(c).DoRequest(req, nil)
 
 	if err != nil {
 		return nil, err
@@ -46,7 +46,7 @@ func (c *Client) CreateGateway(gateway *GatewayCreateRequest) (*Gateway, error) 
 		return nil, err
 	}
 
-	body, err := (*client.Client)(c).DoRequest(req)
+	body, err := (*client.Client)(c).DoRequest(req, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -72,7 +72,7 @@ func (c *Client) UpdateGateway(mgwID string, gateway *GatewayUpdateRequest) (*Ga
 		return nil, err
 	}
 
-	body, err := (*client.Client)(c).DoRequest(req)
+	body, err := (*client.Client)(c).DoRequest(req, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -93,7 +93,7 @@ func (c *Client) DeleteGateway(mgwID string) error {
 		return err
 	}
 
-	body, err := (*client.Client)(c).DoRequest(req)
+	body, err := (*client.Client)(c).DoRequest(req, nil)
 	if err != nil {
 		return err
 	}

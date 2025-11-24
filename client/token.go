@@ -64,7 +64,7 @@ func (t *tokenProvider) GetToken() (string, error) {
 			return "", err
 		}
 
-		resp, err := t.iamClient.DoRequest(req)
+		resp, err := t.iamClient.DoRequest(req, nil)
 		if err != nil {
 			return "", err
 		}

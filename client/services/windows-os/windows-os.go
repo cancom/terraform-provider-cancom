@@ -23,7 +23,7 @@ func (c *Client) GetWindowsDeployment(id string) (*WindowsOS_Deplyoment, error) 
 	}
 	req.Header.Add("Content-Type", "application/json")
 
-	body, err := (*client.Client)(c).DoRequest(req)
+	body, err := (*client.Client)(c).DoRequest(req, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -48,7 +48,7 @@ func (c *Client) CreateWindowsDeployment(windowsOSDeployment *WindowsOS_Deplyome
 		return nil, err
 	}
 
-	resp, err := (*client.Client)(c).DoRequest(req)
+	resp, err := (*client.Client)(c).DoRequest(req, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -78,7 +78,7 @@ func (c *Client) CreateWindowsDeploymentStatus(id string) (*WindowsOS_Deplyoment
 
 		req.Header.Add("Content-Type", "application/json")
 
-		resp, err := (*client.Client)(c).DoRequest(req)
+		resp, err := (*client.Client)(c).DoRequest(req, nil)
 		if err != nil {
 			// allow timeouts because of long running queries in background
 			if os.IsTimeout(err) {
@@ -125,7 +125,7 @@ func (c *Client) GetWindowsDeploymentStatus(id string) (*WindowsOS_Deplyoment, e
 
 		req.Header.Add("Content-Type", "application/json")
 
-		resp, err := (*client.Client)(c).DoRequest(req)
+		resp, err := (*client.Client)(c).DoRequest(req, nil)
 		if err != nil {
 			// allow timeouts because of long running queries in background
 			if os.IsTimeout(err) {
@@ -179,7 +179,7 @@ func (c *Client) UpdateWindowsOsDeployment(id string, windowsOSDeployment *Windo
 	}
 	req.Header.Add("Content-Type", "application/json")
 
-	resp, err := (*client.Client)(c).DoRequest(req)
+	resp, err := (*client.Client)(c).DoRequest(req, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -200,7 +200,7 @@ func (c *Client) DeleteWindowsDeployment(id string) error {
 	}
 	req.Header.Add("Content-Type", "application/json")
 
-	_, err = (*client.Client)(c).DoRequest(req)
+	_, err = (*client.Client)(c).DoRequest(req, nil)
 	if err != nil {
 		return err
 	}

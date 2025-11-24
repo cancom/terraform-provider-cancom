@@ -17,7 +17,7 @@ func (c *CcpClient) getAllServices() ([]Service, error) {
 		return nil, err
 	}
 
-	body, err := serviceRegistry.DoRequest(req)
+	body, err := serviceRegistry.DoRequest(req, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +42,7 @@ func (c *CcpClient) getSingleService(name string) (*Service, error) {
 		return nil, err
 	}
 
-	body, err := serviceRegistry.DoRequest(req)
+	body, err := serviceRegistry.DoRequest(req, nil)
 	if err != nil {
 		return nil, err
 	}

@@ -18,7 +18,7 @@ func (c *Client) GetBucket(bucketName string) (*Bucket, error) {
 		return nil, err
 	}
 
-	body, err := (*client.Client)(c).DoRequest(req)
+	body, err := (*client.Client)(c).DoRequest(req, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -43,7 +43,7 @@ func (c *Client) CreateBucket(bucket *Bucket) (*Bucket, error) {
 		return nil, err
 	}
 
-	resp, err := (*client.Client)(c).DoRequest(req)
+	resp, err := (*client.Client)(c).DoRequest(req, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -63,7 +63,7 @@ func (c *Client) DeleteBucket(bucket string) error {
 		return err
 	}
 
-	_, err = (*client.Client)(c).DoRequest(req)
+	_, err = (*client.Client)(c).DoRequest(req, nil)
 	if err != nil {
 		return err
 	}
@@ -78,7 +78,7 @@ func (c *Client) GetUser(userId string) (*User, error) {
 		return nil, err
 	}
 
-	body, err := (*client.Client)(c).DoRequest(req)
+	body, err := (*client.Client)(c).DoRequest(req, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -103,7 +103,7 @@ func (c *Client) CreateUser(user *UserCreateRequest) (*User, error) {
 		return nil, err
 	}
 
-	resp, err := (*client.Client)(c).DoRequest(req)
+	resp, err := (*client.Client)(c).DoRequest(req, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -123,7 +123,7 @@ func (c *Client) DeleteUser(userId string) error {
 		return err
 	}
 
-	_, err = (*client.Client)(c).DoRequest(req)
+	_, err = (*client.Client)(c).DoRequest(req, nil)
 	if err != nil {
 		return err
 	}

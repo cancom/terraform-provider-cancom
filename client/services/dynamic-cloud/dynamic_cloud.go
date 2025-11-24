@@ -20,7 +20,7 @@ func (c *Client) GetVpcProject(id string) (*VpcProject, error) {
 		return nil, err
 	}
 
-	body, err := (*client.Client)(c).DoRequest(req)
+	body, err := (*client.Client)(c).DoRequest(req, nil)
 	if err != nil {
 		// this is required to allow us to use this function to detect successful deletion
 		// we are polling describe until we get NotFound
@@ -50,7 +50,7 @@ func (c *Client) CreateVpcProject(vpcProjectCreateRequest *VpcProjectCreateReque
 		return nil, err
 	}
 
-	resp, err := (*client.Client)(c).DoRequest(req)
+	resp, err := (*client.Client)(c).DoRequest(req, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +70,7 @@ func (c *Client) DeleteVpcProject(id string) error {
 		return err
 	}
 
-	_, err = (*client.Client)(c).DoRequest(req)
+	_, err = (*client.Client)(c).DoRequest(req, nil)
 	if err != nil {
 		return err
 	}
@@ -89,7 +89,7 @@ func (c *Client) UpdateVpcProjectUsers(id string, users []string) (*VpcProject, 
 		return nil, err
 	}
 
-	resp, err := (*client.Client)(c).DoRequest(req)
+	resp, err := (*client.Client)(c).DoRequest(req, nil)
 	if err != nil {
 		return nil, err
 	}

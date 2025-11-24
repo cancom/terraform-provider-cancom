@@ -6,6 +6,7 @@ import (
 	"io"
 	"math/rand"
 	"net/http"
+	"slices"
 	"sync"
 	"time"
 )
@@ -27,6 +28,15 @@ type Client struct {
 	HostURL    string
 	HTTPClient *http.Client
 	tp         *tokenProvider
+}
+
+type RequestOptions struct {
+	StatusCodes *[]int
+}
+
+type RequestWithRetryOptions struct {
+	Policy      func(resp *http.Response) bool
+	StatusCodes *[]int
 }
 
 func NewClient(host, token *string, role string) (*CcpClient, error) {
@@ -152,7 +162,16 @@ func (c *CcpClient) GetService(name string) (*Client, error) {
 	return serviceClient, nil
 }
 
-func (c *Client) DoRequest(req *http.Request) ([]byte, error) {
+func (c *Client) DoRequest(req *http.Request, options *RequestOptions) ([]byte, error) {
+	if options == nil {
+		options = &RequestOptions{}
+	}
+
+	statusCodes := options.StatusCodes
+	if statusCodes == nil {
+		statusCodes = &[]int{http.StatusOK, http.StatusCreated}
+	}
+
 	token, err := c.tp.GetToken()
 	if err != nil {
 		return nil, err
@@ -171,18 +190,28 @@ func (c *Client) DoRequest(req *http.Request) ([]byte, error) {
 		return nil, err
 	}
 
-	if (resp.StatusCode != http.StatusOK) && (resp.StatusCode != 201) {
+	if !slices.Contains(*statusCodes, resp.StatusCode) {
 		return nil, fmt.Errorf("status: %d, body: %s", resp.StatusCode, body)
 	}
 
 	return body, nil
 }
 
-func (c *Client) DoRequestWithRetry(req *http.Request, policy func(resp *http.Response) bool) ([]byte, error) {
+func (c *Client) DoRequestWithRetry(req *http.Request, options *RequestWithRetryOptions) ([]byte, error) {
+	if options == nil {
+		options = &RequestWithRetryOptions{}
+	}
+
+	policy := options.Policy
 	if policy == nil {
 		policy = func(resp *http.Response) bool {
 			return resp.StatusCode == 429
 		}
+	}
+
+	statusCodes := options.StatusCodes
+	if statusCodes == nil {
+		statusCodes = &[]int{http.StatusOK, http.StatusCreated}
 	}
 
 	token, err := c.tp.GetToken()
@@ -233,7 +262,7 @@ func (c *Client) DoRequestWithRetry(req *http.Request, policy func(resp *http.Re
 			continue
 		}
 
-		if (resp.StatusCode != http.StatusOK) && (resp.StatusCode != 201) {
+		if !slices.Contains(*statusCodes, resp.StatusCode) {
 			return nil, fmt.Errorf("status: %d, body: %s", resp.StatusCode, body)
 		}
 

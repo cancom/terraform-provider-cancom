@@ -19,7 +19,7 @@ func (c *Client) GetSslMonitor(id string) (*SslMonitor, error) {
 		return nil, err
 	}
 
-	body, err := (*client.Client)(c).DoRequest(req)
+	body, err := (*client.Client)(c).DoRequest(req, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -39,7 +39,7 @@ func (c *Client) StartSslScan(id string) error {
 		return err
 	}
 
-	_, err = (*client.Client)(c).DoRequest(req)
+	_, err = (*client.Client)(c).DoRequest(req, nil)
 	if err != nil {
 		return err
 	}
@@ -58,7 +58,7 @@ func (c *Client) CreateSslMonitor(sslMonitorCreateRequest *SslMonitorCreateReque
 		return nil, err
 	}
 
-	resp, err := (*client.Client)(c).DoRequest(req)
+	resp, err := (*client.Client)(c).DoRequest(req, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -83,7 +83,7 @@ func (c *Client) UpdateSslMonitor(id string, sslMonitorCreateRequest *SslMonitor
 		return nil, err
 	}
 
-	resp, err := (*client.Client)(c).DoRequest(req)
+	resp, err := (*client.Client)(c).DoRequest(req, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -103,7 +103,7 @@ func (c *Client) DeleteSslMonitor(id string) error {
 		return err
 	}
 
-	_, err = (*client.Client)(c).DoRequest(req)
+	_, err = (*client.Client)(c).DoRequest(req, nil)
 	if err != nil {
 		return err
 	}
