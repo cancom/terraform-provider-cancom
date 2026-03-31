@@ -13,7 +13,7 @@ Create and manage S3 buckets. Bucket names must be globally unique.
 
 ```terraform
 resource "cancom_object_storage_bucket" "bucket" {
-  name               = "test-bucket"
+  bucket_name        = "test-bucket"
   availability_class = "multiDc"
 }
 ```
