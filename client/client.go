@@ -178,7 +178,7 @@ func (c *Client) DoRequest(req *http.Request) ([]byte, error) {
 	return body, nil
 }
 
-func (c *Client) DoRequestWithRetry(req *http.Request, policy func(resp *http.Response) bool) ([]byte, error) {
+func (c *Client) DoRequestWithRetry(req *http.Request, policy func(resp *http.Response) bool) ([]byte, *int, error) {
 	if policy == nil {
 		policy = func(resp *http.Response) bool {
 			return resp.StatusCode == 429
@@ -187,7 +187,7 @@ func (c *Client) DoRequestWithRetry(req *http.Request, policy func(resp *http.Re
 
 	token, err := c.tp.GetToken()
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	req.Header.Add("Authorization", "Bearer "+token)
@@ -199,7 +199,7 @@ func (c *Client) DoRequestWithRetry(req *http.Request, policy func(resp *http.Re
 	if req.Body != nil {
 		buf, err := io.ReadAll(req.Body)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 		defer req.Body.Close()
 
@@ -213,19 +213,19 @@ func (c *Client) DoRequestWithRetry(req *http.Request, policy func(resp *http.Re
 
 		token, err := c.tp.GetToken()
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 
 		req.Header.Set("Authorization", "Bearer "+token)
 		resp, err := c.HTTPClient.Do(req)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 		defer resp.Body.Close()
 
 		body, err := io.ReadAll(resp.Body)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 
 		if policy(resp) {
@@ -234,11 +234,11 @@ func (c *Client) DoRequestWithRetry(req *http.Request, policy func(resp *http.Re
 		}
 
 		if (resp.StatusCode != http.StatusOK) && (resp.StatusCode != 201) {
-			return nil, fmt.Errorf("status: %d, body: %s", resp.StatusCode, body)
+			return nil, &resp.StatusCode, fmt.Errorf("status: %d, body: %s", resp.StatusCode, body)
 		}
 
-		return body, nil
+		return body, &resp.StatusCode, nil
 	}
 
-	return nil, fmt.Errorf("maximum retries has been reached")
+	return nil, nil, fmt.Errorf("maximum retries has been reached")
 }

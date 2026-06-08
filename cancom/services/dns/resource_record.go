@@ -2,6 +2,7 @@ package dns
 
 import (
 	"context"
+	"net/http"
 	"strings"
 
 	"github.com/cancom/terraform-provider-cancom/cancom/util"
@@ -204,7 +205,13 @@ func resourceRecordDelete(ctx context.Context, d *schema.ResourceData, m interfa
 	}
 	defer resourceRecordApiLock.Unlock()
 
-	err = (*client_dns.Client)(c).DeleteRecord(id)
+	code, err := (*client_dns.Client)(c).DeleteRecord(id)
+
+	// For idempotency - if already deleted, and should be deleted, we are fine
+	if code != nil && *code == http.StatusNotFound {
+		d.SetId("")
+		return diags
+	}
 
 	if err != nil {
 		return diag.FromErr(err)
