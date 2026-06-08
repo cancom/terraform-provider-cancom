@@ -54,13 +54,13 @@ func (c *Client) CreateNetwork(network *NetworkCreateRequest) (*Network, error) 
 		return nil, err
 	}
 
-	body, _, err := (*client.Client)(c).DoRequestWithRetry(req, nil)
+	result, err := (*client.Client)(c).DoRequestWithRetry(req, nil)
 	if err != nil {
 		return nil, err
 	}
 
 	newNetwork := Network{}
-	err = json.Unmarshal(body, &newNetwork)
+	err = json.Unmarshal(result.Body, &newNetwork)
 	if err != nil {
 		return nil, err
 	}
@@ -102,13 +102,13 @@ func (c *Client) DeleteNetwork(networkId string) error {
 		return err
 	}
 
-	body, _, err := (*client.Client)(c).DoRequestWithRetry(req, nil)
+	result, err := (*client.Client)(c).DoRequestWithRetry(req, nil)
 	if err != nil {
 		return err
 	}
 
 	delResponse := NetworkDeleteResponse{}
-	err = json.Unmarshal(body, &delResponse)
+	err = json.Unmarshal(result.Body, &delResponse)
 	if err != nil {
 		return err
 	}
@@ -161,13 +161,13 @@ func (c *Client) CreateSupernet(supernet *SupernetCreateRequest) (*Supernet, err
 		return nil, err
 	}
 
-	body, _, err := (*client.Client)(c).DoRequestWithRetry(req, nil)
+	result, err := (*client.Client)(c).DoRequestWithRetry(req, nil)
 	if err != nil {
 		return nil, err
 	}
 
 	newSupernet := Supernet{}
-	err = json.Unmarshal(body, &newSupernet)
+	err = json.Unmarshal(result.Body, &newSupernet)
 	if err != nil {
 		return nil, err
 	}
@@ -188,13 +188,13 @@ func (c *Client) UpdateSupernet(supernetId string, supernet *SupernetUpdateReque
 		return nil, err
 	}
 
-	body, _, err := (*client.Client)(c).DoRequestWithRetry(req, nil)
+	result, err := (*client.Client)(c).DoRequestWithRetry(req, nil)
 	if err != nil {
 		return nil, err
 	}
 
 	newSupernet := Supernet{}
-	err = json.Unmarshal(body, &newSupernet)
+	err = json.Unmarshal(result.Body, &newSupernet)
 	if err != nil {
 		return nil, err
 	}
@@ -209,13 +209,13 @@ func (c *Client) DeleteSupernet(supernetId string) error {
 		return err
 	}
 
-	body, _, err := (*client.Client)(c).DoRequestWithRetry(req, nil)
+	result, err := (*client.Client)(c).DoRequestWithRetry(req, nil)
 	if err != nil {
 		return err
 	}
 
 	delResponse := SupernetDeleteResponse{}
-	err = json.Unmarshal(body, &delResponse)
+	err = json.Unmarshal(result.Body, &delResponse)
 	if err != nil {
 		return err
 	}
@@ -373,13 +373,13 @@ func (c *Client) CreateHost(host *HostCreateRequest) (*Host, error) {
 		return nil, err
 	}
 
-	body, _, err := (*client.Client)(c).DoRequestWithRetry(req, nil)
+	result, err := (*client.Client)(c).DoRequestWithRetry(req, nil)
 	if err != nil {
 		return nil, err
 	}
 
 	newHost := Host{}
-	err = json.Unmarshal(body, &newHost)
+	err = json.Unmarshal(result.Body, &newHost)
 	if err != nil {
 		return nil, err
 	}
@@ -399,13 +399,13 @@ func (c *Client) UpdateHost(hostId string, host *HostUpdateRequest) (*Host, erro
 		return nil, err
 	}
 
-	body, _, err := (*client.Client)(c).DoRequestWithRetry(req, nil)
+	result, err := (*client.Client)(c).DoRequestWithRetry(req, nil)
 	if err != nil {
 		return nil, err
 	}
 
 	newHost := Host{}
-	err = json.Unmarshal(body, &newHost)
+	err = json.Unmarshal(result.Body, &newHost)
 	if err != nil {
 		return nil, err
 	}
@@ -420,13 +420,13 @@ func (c *Client) DeleteHost(hostId string) error {
 		return err
 	}
 
-	body, _, err := (*client.Client)(c).DoRequestWithRetry(req, nil)
+	result, err := (*client.Client)(c).DoRequestWithRetry(req, nil)
 	if err != nil {
 		return err
 	}
 
 	delResponse := HostDeleteResponse{}
-	err = json.Unmarshal(body, &delResponse)
+	err = json.Unmarshal(result.Body, &delResponse)
 	if err != nil {
 		return err
 	}

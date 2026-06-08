@@ -29,6 +29,15 @@ type Client struct {
 	tp         *tokenProvider
 }
 
+type RetryOptions struct {
+	Policy func(resp *http.Response) bool
+}
+
+type HTTPResult struct {
+	Body       []byte
+	StatusCode int
+}
+
 func NewClient(host, token *string, role string) (*CcpClient, error) {
 	serviceRegistry := HostURL
 	if host != nil {
@@ -178,16 +187,20 @@ func (c *Client) DoRequest(req *http.Request) ([]byte, error) {
 	return body, nil
 }
 
-func (c *Client) DoRequestWithRetry(req *http.Request, policy func(resp *http.Response) bool) ([]byte, *int, error) {
-	if policy == nil {
-		policy = func(resp *http.Response) bool {
+func (c *Client) DoRequestWithRetry(req *http.Request, options *RetryOptions) (HTTPResult, error) {
+	if options == nil {
+		options = &RetryOptions{}
+	}
+
+	if options.Policy == nil {
+		options.Policy = func(resp *http.Response) bool {
 			return resp.StatusCode == 429
 		}
 	}
 
 	token, err := c.tp.GetToken()
 	if err != nil {
-		return nil, nil, err
+		return HTTPResult{}, err
 	}
 
 	req.Header.Add("Authorization", "Bearer "+token)
@@ -199,7 +212,7 @@ func (c *Client) DoRequestWithRetry(req *http.Request, policy func(resp *http.Re
 	if req.Body != nil {
 		buf, err := io.ReadAll(req.Body)
 		if err != nil {
-			return nil, nil, err
+			return HTTPResult{}, err
 		}
 		defer req.Body.Close()
 
@@ -213,32 +226,32 @@ func (c *Client) DoRequestWithRetry(req *http.Request, policy func(resp *http.Re
 
 		token, err := c.tp.GetToken()
 		if err != nil {
-			return nil, nil, err
+			return HTTPResult{}, err
 		}
 
 		req.Header.Set("Authorization", "Bearer "+token)
 		resp, err := c.HTTPClient.Do(req)
 		if err != nil {
-			return nil, nil, err
+			return HTTPResult{}, err
 		}
 		defer resp.Body.Close()
 
 		body, err := io.ReadAll(resp.Body)
 		if err != nil {
-			return nil, nil, err
+			return HTTPResult{}, err
 		}
 
-		if policy(resp) {
+		if options.Policy(resp) {
 			time.Sleep(time.Duration(rand.Intn(16)+15) * time.Second)
 			continue
 		}
 
 		if (resp.StatusCode != http.StatusOK) && (resp.StatusCode != 201) {
-			return nil, &resp.StatusCode, fmt.Errorf("status: %d, body: %s", resp.StatusCode, body)
+			return HTTPResult{Body: body, StatusCode: resp.StatusCode}, fmt.Errorf("status: %d, body: %s", resp.StatusCode, body)
 		}
 
-		return body, &resp.StatusCode, nil
+		return HTTPResult{Body: body, StatusCode: resp.StatusCode}, nil
 	}
 
-	return nil, nil, fmt.Errorf("maximum retries has been reached")
+	return HTTPResult{}, fmt.Errorf("maximum retries has been reached")
 }

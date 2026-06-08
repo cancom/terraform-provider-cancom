@@ -106,13 +106,13 @@ func (c *Client) CreateRecord(record *RecordCreateRequest) (*Record, error) {
 		return nil, err
 	}
 
-	resp, _, err := (*client.Client)(c).DoRequestWithRetry(req, nil)
+	result, err := (*client.Client)(c).DoRequestWithRetry(req, nil)
 	if err != nil {
 		return nil, err
 	}
 
 	recordBody := Record{}
-	err = json.Unmarshal(resp, &recordBody)
+	err = json.Unmarshal(result.Body, &recordBody)
 	if err != nil {
 		return nil, err
 	}
@@ -135,13 +135,13 @@ func (c *Client) UpdateRecord(id string, record *RecordUpdateRequest) (*Record, 
 		return nil, err
 	}
 
-	body, _, err = (*client.Client)(c).DoRequestWithRetry(req, nil)
+	result, err := (*client.Client)(c).DoRequestWithRetry(req, nil)
 	if err != nil {
 		return nil, err
 	}
 
 	recordBody := Record{}
-	err = json.Unmarshal(body, &recordBody)
+	err = json.Unmarshal(result.Body, &recordBody)
 	if err != nil {
 		return nil, err
 	}
@@ -149,12 +149,12 @@ func (c *Client) UpdateRecord(id string, record *RecordUpdateRequest) (*Record, 
 	return &recordBody, nil
 }
 
-func (c *Client) DeleteRecord(id string) (*int, error) {
+func (c *Client) DeleteRecord(id string) (client.HTTPResult, error) {
 	req, err := http.NewRequest("DELETE", fmt.Sprintf("%s/v1/Records/%s", c.HostURL, id), nil)
 	if err != nil {
-		return nil, err
+		return client.HTTPResult{}, err
 	}
 
-	_, code, err := (*client.Client)(c).DoRequestWithRetry(req, nil)
-	return code, err
+	result, err := (*client.Client)(c).DoRequestWithRetry(req, nil)
+	return result, err
 }
