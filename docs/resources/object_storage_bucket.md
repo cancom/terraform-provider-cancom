@@ -15,6 +15,8 @@ Create and manage S3 buckets. Bucket names must be globally unique.
 resource "cancom_object_storage_bucket" "bucket" {
   bucket_name        = "test-bucket"
   availability_class = "multiDc"
+  description        = "Test bucket"
+  ip_whitelist       = ["10.0.0.0/16"]
 }
 ```
 
@@ -25,6 +27,11 @@ resource "cancom_object_storage_bucket" "bucket" {
 
 - `availability_class` (String) Name of the availability class. One of singleDc or multiDc.
 - `bucket_name` (String) Name of the bucket. The name must be unique GLOBALLY.
+
+### Optional
+
+- `description` (String) Description what the bucket is used for
+- `ip_whitelist` (List of String) A list of CIDRs that should be able to access the bucket
 
 ### Read-Only
 
