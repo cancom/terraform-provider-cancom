@@ -2,6 +2,8 @@ package dns
 
 import (
 	"context"
+	"errors"
+	"net/http"
 	"strings"
 
 	"github.com/cancom/terraform-provider-cancom/cancom/util"
@@ -134,6 +136,12 @@ func resourceRecordRead(ctx context.Context, d *schema.ResourceData, m interface
 	resp, err := (*client_dns.Client)(c).GetRecord(id, zoneName)
 
 	if err != nil {
+		var httpErr *client.HTTPError
+		if errors.As(err, &httpErr) && httpErr.StatusCode == http.StatusNotFound {
+			d.SetId("")
+			return diags
+		}
+
 		return diag.FromErr(err)
 	}
 
@@ -207,6 +215,11 @@ func resourceRecordDelete(ctx context.Context, d *schema.ResourceData, m interfa
 	err = (*client_dns.Client)(c).DeleteRecord(id)
 
 	if err != nil {
+		var httpErr *client.HTTPError
+		if errors.As(err, &httpErr) && httpErr.StatusCode == http.StatusNotFound {
+			d.SetId("")
+			return diags
+		}
 		return diag.FromErr(err)
 	}
 
