@@ -142,7 +142,7 @@ func (c *Client) UpdateUser(userId string, request *UserUpdateRequest) (*User, e
 		return nil, err
 	}
 
-	body, _, err = (*client.Client)(c).DoRequestWithRetry(req, nil)
+	body, err = (*client.Client)(c).DoRequestWithRetry(req, nil)
 	if err != nil {
 		return nil, err
 	}

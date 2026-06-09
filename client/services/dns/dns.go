@@ -106,7 +106,7 @@ func (c *Client) CreateRecord(record *RecordCreateRequest) (*Record, error) {
 		return nil, err
 	}
 
-	resp, _, err := (*client.Client)(c).DoRequestWithRetry(req, nil)
+	resp, err := (*client.Client)(c).DoRequestWithRetry(req, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -135,7 +135,7 @@ func (c *Client) UpdateRecord(id string, record *RecordUpdateRequest) (*Record, 
 		return nil, err
 	}
 
-	body, _, err = (*client.Client)(c).DoRequestWithRetry(req, nil)
+	body, err = (*client.Client)(c).DoRequestWithRetry(req, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -149,12 +149,16 @@ func (c *Client) UpdateRecord(id string, record *RecordUpdateRequest) (*Record, 
 	return &recordBody, nil
 }
 
-func (c *Client) DeleteRecord(id string) (*int, error) {
+func (c *Client) DeleteRecord(id string) error {
 	req, err := http.NewRequest("DELETE", fmt.Sprintf("%s/v1/Records/%s", c.HostURL, id), nil)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	_, code, err := (*client.Client)(c).DoRequestWithRetry(req, nil)
-	return code, err
+	_, err = (*client.Client)(c).DoRequestWithRetry(req, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
