@@ -142,13 +142,13 @@ func (c *Client) UpdateUser(userId string, request *UserUpdateRequest) (*User, e
 		return nil, err
 	}
 
-	result, err := (*client.Client)(c).DoRequestWithRetry(req, nil)
+	body, _, err = (*client.Client)(c).DoRequestWithRetry(req, nil)
 	if err != nil {
 		return nil, err
 	}
 
 	userResponse := User{}
-	err = json.Unmarshal(result.Body, &userResponse)
+	err = json.Unmarshal(body, &userResponse)
 	if err != nil {
 		return nil, err
 	}

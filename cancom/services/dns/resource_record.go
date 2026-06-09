@@ -205,10 +205,10 @@ func resourceRecordDelete(ctx context.Context, d *schema.ResourceData, m interfa
 	}
 	defer resourceRecordApiLock.Unlock()
 
-	result, err := (*client_dns.Client)(c).DeleteRecord(id)
+	code, err := (*client_dns.Client)(c).DeleteRecord(id)
 
 	// For idempotency - if already deleted, and should be deleted, we are fine
-	if result.StatusCode == http.StatusNotFound {
+	if code != nil && *code == http.StatusNotFound {
 		d.SetId("")
 		return diags
 	}
