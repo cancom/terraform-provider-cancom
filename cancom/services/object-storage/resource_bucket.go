@@ -42,7 +42,7 @@ func resourceBucket() *schema.Resource {
 					Type: schema.TypeString,
 				},
 				Optional:    true,
-				Description: "A list of CIDRs that should be able to access the bucket",
+				Description: "A list of CIDRs that should be able to access the bucket. Use the public IPs that you are accessing our S3 service with.",
 			},
 		},
 	}

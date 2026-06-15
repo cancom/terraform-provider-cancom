@@ -31,7 +31,7 @@ resource "cancom_object_storage_bucket" "bucket" {
 ### Optional
 
 - `description` (String) Description what the bucket is used for
-- `ip_whitelist` (List of String) A list of CIDRs that should be able to access the bucket
+- `ip_whitelist` (List of String) A list of CIDRs that should be able to access the bucket. Use the public IPs that you are accessing our S3 service with.
 
 ### Read-Only
 
