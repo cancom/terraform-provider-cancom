@@ -29,6 +29,15 @@ type Client struct {
 	tp         *tokenProvider
 }
 
+type HTTPError struct {
+	StatusCode int
+	Message    []byte
+}
+
+func (e *HTTPError) Error() string {
+	return fmt.Sprintf("status: %d, body: %s", e.StatusCode, e.Message)
+}
+
 func NewClient(host, token *string, role string) (*CcpClient, error) {
 	serviceRegistry := HostURL
 	if host != nil {
@@ -172,7 +181,10 @@ func (c *Client) DoRequest(req *http.Request) ([]byte, error) {
 	}
 
 	if (resp.StatusCode != http.StatusOK) && (resp.StatusCode != 201) {
-		return nil, fmt.Errorf("status: %d, body: %s", resp.StatusCode, body)
+		return nil, &HTTPError{
+			StatusCode: resp.StatusCode,
+			Message:    body,
+		}
 	}
 
 	return body, nil
@@ -234,7 +246,10 @@ func (c *Client) DoRequestWithRetry(req *http.Request, policy func(resp *http.Re
 		}
 
 		if (resp.StatusCode != http.StatusOK) && (resp.StatusCode != 201) {
-			return nil, fmt.Errorf("status: %d, body: %s", resp.StatusCode, body)
+			return nil, &HTTPError{
+				StatusCode: resp.StatusCode,
+				Message:    body,
+			}
 		}
 
 		return body, nil
