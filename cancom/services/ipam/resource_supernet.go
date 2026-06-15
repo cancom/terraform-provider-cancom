@@ -2,6 +2,8 @@ package ipam
 
 import (
 	"context"
+	"errors"
+	"net/http"
 
 	"github.com/cancom/terraform-provider-cancom/client"
 	client_ipam "github.com/cancom/terraform-provider-cancom/client/services/ipam"
@@ -71,6 +73,11 @@ func resourceSupernetRead(ctx context.Context, d *schema.ResourceData, m interfa
 	resp, err := (*client_ipam.Client)(c).GetSupernet(id)
 
 	if err != nil {
+		var httpErr *client.HTTPError
+		if errors.As(err, &httpErr) && httpErr.StatusCode == http.StatusNotFound {
+			d.SetId("")
+			return diags
+		}
 		return diag.FromErr(err)
 	}
 
@@ -159,6 +166,11 @@ func resourceSupernetDelete(ctx context.Context, d *schema.ResourceData, m inter
 	err = (*client_ipam.Client)(c).DeleteSupernet(id)
 
 	if err != nil {
+		var httpErr *client.HTTPError
+		if errors.As(err, &httpErr) && httpErr.StatusCode == http.StatusNotFound {
+			d.SetId("")
+			return diags
+		}
 		return diag.FromErr(err)
 	}
 

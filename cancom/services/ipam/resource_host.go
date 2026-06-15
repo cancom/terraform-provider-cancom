@@ -2,6 +2,8 @@ package ipam
 
 import (
 	"context"
+	"errors"
+	"net/http"
 
 	"github.com/cancom/terraform-provider-cancom/client"
 	client_ipam "github.com/cancom/terraform-provider-cancom/client/services/ipam"
@@ -69,6 +71,12 @@ func resourceHostRead(ctx context.Context, d *schema.ResourceData, m interface{}
 	resp, err := (*client_ipam.Client)(c).GetHost(id)
 
 	if err != nil {
+		var httpErr *client.HTTPError
+		if errors.As(err, &httpErr) && httpErr.StatusCode == http.StatusNotFound {
+			d.SetId("")
+			return diags
+		}
+
 		return diag.FromErr(err)
 	}
 
@@ -155,6 +163,11 @@ func resourceHostDelete(ctx context.Context, d *schema.ResourceData, m interface
 	err = (*client_ipam.Client)(c).DeleteHost(id)
 
 	if err != nil {
+		var httpErr *client.HTTPError
+		if errors.As(err, &httpErr) && httpErr.StatusCode == http.StatusNotFound {
+			d.SetId("")
+			return diags
+		}
 		return diag.FromErr(err)
 	}
 
