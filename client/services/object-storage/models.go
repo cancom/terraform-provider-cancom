@@ -1,10 +1,16 @@
 package client_object_storage
 
 type Bucket struct {
-	BucketName        string `json:"bucketName"`
-	AvailabilityClass string `json:"availabilityClass"`
+	BucketName        string   `json:"bucketName"`
+	AvailabilityClass string   `json:"availabilityClass"`
+	Description       string   `json:"description"`
+	IpWhitelist       []string `json:"ipWhitelist"`
 }
 
+type BucketUpdateRequest struct {
+	Description string   `json:"description"`
+	IpWhitelist []string `json:"ipWhitelist"`
+}
 type User struct {
 	Id              string                 `json:"id"`
 	Username        string                 `json:"username"`

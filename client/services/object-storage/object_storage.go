@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/cancom/terraform-provider-cancom/client"
 )
@@ -69,6 +70,31 @@ func (c *Client) DeleteBucket(bucket string) error {
 	}
 
 	return nil
+}
+
+func (c *Client) UpdateBucket(bucket string, request BucketUpdateRequest) (*Bucket, error) {
+	rb, err := json.Marshal(request)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", fmt.Sprintf("%s/v1/Buckets/%s", c.HostURL, bucket), strings.NewReader(string(rb)))
+	if err != nil {
+		return nil, err
+	}
+
+	body, err := (*client.Client)(c).DoRequest(req)
+	if err != nil {
+		return nil, err
+	}
+
+	newBucket := Bucket{}
+	err = json.Unmarshal(body, &newBucket)
+	if err != nil {
+		return nil, err
+	}
+	return &newBucket, nil
+
 }
 
 // ----------------------- Users -------------------
