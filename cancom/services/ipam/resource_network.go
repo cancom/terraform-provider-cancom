@@ -2,6 +2,8 @@ package ipam
 
 import (
 	"context"
+	"errors"
+	"net/http"
 
 	"github.com/cancom/terraform-provider-cancom/client"
 	client_ipam "github.com/cancom/terraform-provider-cancom/client/services/ipam"
@@ -82,6 +84,11 @@ func resourceNetworkRead(ctx context.Context, d *schema.ResourceData, m interfac
 	resp, err := (*client_ipam.Client)(c).GetNetwork(id)
 
 	if err != nil {
+		var httpErr *client.HTTPError
+		if errors.As(err, &httpErr) && httpErr.StatusCode == http.StatusNotFound {
+			d.SetId("")
+			return diags
+		}
 		return diag.FromErr(err)
 	}
 
@@ -186,11 +193,21 @@ func resourceNetworkDelete(ctx context.Context, d *schema.ResourceData, m interf
 	}
 	_, err = (*client_ipam.Client)(c).UpdateNetwork(id, network)
 	if err != nil {
+		var httpErr *client.HTTPError
+		if errors.As(err, &httpErr) && httpErr.StatusCode == http.StatusNotFound {
+			d.SetId("")
+			return diags
+		}
 		return diag.FromErr(err)
 	}
 
 	err = (*client_ipam.Client)(c).DeleteNetwork(id)
 	if err != nil {
+		var httpErr *client.HTTPError
+		if errors.As(err, &httpErr) && httpErr.StatusCode == http.StatusNotFound {
+			d.SetId("")
+			return diags
+		}
 		return diag.FromErr(err)
 	}
 
