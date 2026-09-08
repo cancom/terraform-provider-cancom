@@ -24,6 +24,7 @@ type VpcProjectSpec struct {
 	OpenstackUuid    string         `json:"openstackUuid"`
 	Limits           map[string]int `json:"limits"`
 	ProjectUsers     []string       `json:"projectUsers"`
+	ProjectReaders   []string       `json:"projectReaders"`
 	ManagedByService string         `json:"managedByService,omitempty"`
 }
 
@@ -50,9 +51,15 @@ type VpcProjectCreateMetadata struct {
 type VpcProjectCreateSpec struct {
 	ProjectComment string   `json:"projectComment"`
 	ProjectUsers   []string `json:"projectUsers,omitempty"`
+	ProjectReaders []string `json:"projectReaders,omitempty"`
 }
 
 type VpcProjectCreateRequest struct {
 	Metadata VpcProjectCreateMetadata `json:"metadata"`
 	Spec     VpcProjectCreateSpec     `json:"spec"`
+}
+
+type VpcProjectUpdateUsersRequest struct {
+	ProjectUsers   []string `json:"projectUsers"`
+	ProjectReaders []string `json:"projectReaders"`
 }
