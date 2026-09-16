@@ -78,8 +78,11 @@ func (c *Client) DeleteVpcProject(id string) error {
 	return nil
 }
 
-func (c *Client) UpdateVpcProjectUsers(id string, users []string) (*VpcProject, error) {
-	body, err := json.Marshal(users)
+func (c *Client) UpdateVpcProjectUsers(id string, users []string, readers []string) (*VpcProject, error) {
+	body, err := json.Marshal(VpcProjectUpdateUsersRequest{
+		ProjectUsers:   users,
+		ProjectReaders: readers,
+	})
 	if err != nil {
 		return nil, err
 	}

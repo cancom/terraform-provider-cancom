@@ -21,7 +21,7 @@ func resourceVpcProject() *schema.Resource {
 	return &schema.Resource{
 		Description: `Dynamic Cloud --- Manage Dynamic Cloud VPC Projects lifecycle
 
-This creates a Virtual Private Cloud (VPC) Project with the specified name and the optional comment. The parameter ` + "`users`" + ` can be used to specify which user should get access to the VPC Project.
+This creates a Virtual Private Cloud (VPC) Project with the specified name and the optional comment. The parameter ` + "`users`" + ` can be used to specify which user should get access to the VPC Project. The parameter ` + "`readers`" + ` can be used to specify which users should get read-only access to the VPC Project.
 
 !> Changing the ` + "`name` or `comment`" + ` will force the VPC Project to be recreated, i.e. all resources in the VPC Project will be deleted.`,
 		CreateContext: resourceVpcProjectCreate,
@@ -64,6 +64,16 @@ By changing this value, the old project will be deleted and a new project with t
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "The uuid of the OpenStack Project.",
+			},
+			"readers": {
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Computed:    true,
+				Description: "The list of users with read-only access to the VPC Project. The list may only contains CRNs of human iam users.",
+				Elem: &schema.Schema{
+					Type:             schema.TypeString,
+					ValidateDiagFunc: validation.ToDiagFunc(validation.StringMatch(CrnIamUserRegex, "One of the readers is not a valid CANCOM Resource Number (CRN) of a human IAM user.")),
+				},
 			},
 			"project_comment": {
 				Type:     schema.TypeString,
@@ -112,6 +122,7 @@ func resourceVpcProjectCreate(ctx context.Context, d *schema.ResourceData, meta 
 		Spec: client_dynamiccloud.VpcProjectCreateSpec{
 			ProjectComment: d.Get("project_comment").(string),
 			ProjectUsers:   setToUsers(d.Get("users")),
+			ProjectReaders: setToUsers(d.Get("readers")),
 		},
 	}
 
@@ -186,6 +197,11 @@ func resourceVpcProjectRead(ctx context.Context, d *schema.ResourceData, meta in
 		return diag.FromErr(err)
 	}
 
+	err = d.Set("readers", usersToSet(resp.Spec.ProjectReaders))
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
 	return diags
 }
 
@@ -214,7 +230,8 @@ func resourceVpcProjectUpdate(ctx context.Context, d *schema.ResourceData, meta 
 	}
 
 	tflog.Info(ctx, "Concat svc users", map[string]interface{}{"usersForBody": append(users, serviceUsers...)})
-	_, err = (*client_dynamiccloud.Client)(c).UpdateVpcProjectUsers(vpcProjectShortid, append(users, serviceUsers...))
+	readers := setToUsers(d.Get("readers"))
+	_, err = (*client_dynamiccloud.Client)(c).UpdateVpcProjectUsers(vpcProjectShortid, append(users, serviceUsers...), readers)
 	if err != nil {
 		return diag.FromErr(err)
 	}
