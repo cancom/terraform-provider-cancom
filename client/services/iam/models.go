@@ -1,5 +1,7 @@
 package client_iam
 
+import "github.com/golang-jwt/jwt/v5"
+
 type UserCreateRequest struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
@@ -88,5 +90,46 @@ type AssumeRoleRequest struct {
 
 type AssumeRoleResponse struct {
 	Jwt     string `json:"jwt"`
+	Message string `json:"message"`
+}
+
+type SessionCreateRequest struct {
+	ServiceUser string `json:"serviceUser"`
+	Comment     string `json:"comment"`
+}
+
+type SessionClaims struct {
+	jwt.RegisteredClaims
+	SessionID     string `json:"sessionId"`
+	Tenant        string `json:"tenant"`
+	Subaccount    string `json:"subaccount"`
+	PrincipalType string `json:"principalType"`
+	PrincipalName string `json:"principalName"`
+	PrincipalCRN  string `json:"principalCRN"`
+	Typ           string `json:"typ"`
+}
+
+type SessionCreateResponse struct {
+	Jwt          string         `json:"jwt"`
+	SessionID    string         `json:"sessionId,omitempty"`
+	PrincipalCRN string         `json:"principalCRN,omitempty"`
+	ExpiresAt    int64          `json:"expiresAt,omitempty"`
+	Claims       *SessionClaims `json:"claims,omitempty"`
+}
+
+type SessionUpdateRequest struct {
+	Comment string `json:"comment"`
+}
+
+type Session struct {
+	Enabled      bool   `json:"enabled"`
+	LastIssuedAt string `json:"lastIssuedAt"`
+	Comment      string `json:"comment"`
+	TTL          string `json:"ttl"`
+	Principal    string `json:"principal"`
+	SessionID    string `json:"sessionId"`
+}
+
+type SessionDeleteResponse struct {
 	Message string `json:"message"`
 }
