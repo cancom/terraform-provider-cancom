@@ -16,7 +16,7 @@ import (
 
 func resourceServiceUserSession() *schema.Resource {
 	return &schema.Resource{
-		Description:   "IAM --- Ephemeral session token for a service user with automatic re-roll support.",
+		Description:   "IAM --- Service user session token with automatic re-roll support.",
 		CreateContext: resourceServiceUserSessionCreate,
 		ReadContext:   resourceServiceUserSessionRead,
 		UpdateContext: resourceServiceUserSessionUpdate,
@@ -38,7 +38,7 @@ func resourceServiceUserSession() *schema.Resource {
 			},
 		),
 		Schema: map[string]*schema.Schema{
-			"service_user": {
+			"service_user_crn": {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
@@ -99,7 +99,7 @@ func resourceServiceUserSessionCreate(ctx context.Context, d *schema.ResourceDat
 	}
 
 	sessionCreateRequest := client_iam.SessionCreateRequest{
-		ServiceUser: d.Get("service_user").(string),
+		ServiceUser: d.Get("service_user_crn").(string),
 		Comment:     d.Get("comment").(string),
 	}
 
@@ -124,7 +124,7 @@ func resourceServiceUserSessionRead(ctx context.Context, d *schema.ResourceData,
 
 	var diags diag.Diagnostics
 
-	serviceUser := d.Get("service_user").(string)
+	serviceUser := d.Get("service_user_crn").(string)
 	sessionID := d.Id()
 
 	if serviceUser == "" || sessionID == "" {
@@ -151,7 +151,7 @@ func resourceServiceUserSessionRead(ctx context.Context, d *schema.ResourceData,
 		d.Set("expires_at", int(ttlUnix))
 	}
 
-	d.Set("service_user", session.Principal)
+	d.Set("service_user_crn", session.Principal)
 	d.Set("session_id", session.SessionID)
 	d.Set("comment", session.Comment)
 	d.Set("enabled", session.Enabled)
@@ -166,7 +166,7 @@ func resourceServiceUserSessionUpdate(ctx context.Context, d *schema.ResourceDat
 		return diag.FromErr(err)
 	}
 
-	serviceUser := d.Get("service_user").(string)
+	serviceUser := d.Get("service_user_crn").(string)
 	sessionID := d.Id()
 
 	sessionUpdateRequest := client_iam.SessionUpdateRequest{
@@ -189,7 +189,7 @@ func resourceServiceUserSessionDelete(ctx context.Context, d *schema.ResourceDat
 
 	var diags diag.Diagnostics
 
-	serviceUser := d.Get("service_user").(string)
+	serviceUser := d.Get("service_user_crn").(string)
 	sessionID := d.Id()
 
 	err = (*client_iam.Client)(c).DeleteSession(serviceUser, sessionID)

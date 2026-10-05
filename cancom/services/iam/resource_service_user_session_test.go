@@ -84,7 +84,7 @@ func TestResourceServiceUserSessionCRUD(t *testing.T) {
 
 	r := resourceServiceUserSession()
 	d := r.TestResourceData()
-	_ = d.Set("service_user", principalCRN)
+	_ = d.Set("service_user_crn", principalCRN)
 	_ = d.Set("comment", "test initial comment")
 	_ = d.Set("reroll_days", 7)
 

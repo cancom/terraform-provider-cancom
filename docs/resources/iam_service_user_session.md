@@ -2,7 +2,7 @@
 page_title: "cancom_iam_service_user_session Resource - terraform-provider-cancom"
 subcategory: "IAM"
 description: |-
-  Ephemeral session token for a service user with automatic re-roll support.
+  Service user session token with automatic re-roll support.
 ---
 
 # cancom_iam_service_user_session (Resource)
@@ -13,7 +13,7 @@ Ephemeral session token for a service user with automatic re-roll support.
 
 ```terraform
 resource "cancom_iam_service_user_session" "session" {
-  service_user = cancom_iam_service_user.su.principal
+  service_user_crn = cancom_iam_service_user.su.principal
   comment      = "CI/CD ephemeral runner session"
   reroll_days  = 7
 }
@@ -24,7 +24,7 @@ resource "cancom_iam_service_user_session" "session" {
 
 ### Required
 
-- `service_user` (String) Principal CRN of the service user (e.g. `crn:cancom::iam:serviceuser:testuser2`).
+- `service_user_crn` (String) Principal CRN of the service user (e.g. `crn:cancom::iam:serviceuser:testuser2`).
 
 ### Optional
 
