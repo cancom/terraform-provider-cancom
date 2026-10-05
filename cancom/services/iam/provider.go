@@ -20,10 +20,11 @@ func New() Provider {
 		ServiceName: "iam",
 		ProviderSchema: &schema.Provider{
 			ResourcesMap: map[string]*schema.Resource{
-				"user":         resourceUser(),
-				"service_user": resourceServiceUser(),
-				"role":         resourceRole(),
-				"policy":       resourcePolicy(),
+				"user":                 resourceUser(),
+				"service_user":         resourceServiceUser(),
+				"service_user_session": resourceServiceUserSession(),
+				"role":                 resourceRole(),
+				"policy":               resourcePolicy(),
 			},
 		},
 	}
