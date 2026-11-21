@@ -88,9 +88,6 @@ func resourceGatewayCreate(ctx context.Context, d *schema.ResourceData, m interf
 	}
 	tflog.Info(ctx, "Creating Gateway")
 
-	// Warning or errors can be collected in a slice type
-	var diags diag.Diagnostics
-
 	gateway := &client_cmsmgw.GatewayCreateRequest{
 		Customer:           d.Get("customer").(string),
 		NameTag:            d.Get("name_tag").(string),
@@ -136,9 +133,7 @@ func resourceGatewayCreate(ctx context.Context, d *schema.ResourceData, m interf
 
 	d.SetId(resp.ID)
 
-	resourceGatewayRead(ctx, d, m)
-
-	return diags
+	return resourceGatewayRead(ctx, d, m)
 }
 
 // --------------Gateway Read----------------------------
@@ -171,7 +166,7 @@ func resourceGatewayRead(ctx context.Context, d *schema.ResourceData, m interfac
 	d.Set("mgw_size", resp.MgwSize)
 	d.Set("tag", resp.Tag)
 	d.Set("bastion_lite_linux", resp.BastionLiteLinux)
-	d.Set("bastion_lite_Window", resp.BastionLiteWindows)
+	d.Set("bastion_lite_windows", resp.BastionLiteWindows)
 
 	return diags
 }
@@ -183,13 +178,10 @@ func resourceGatewayUpdate(ctx context.Context, d *schema.ResourceData, m interf
 		return diag.FromErr(err)
 	}
 
-	// Warning or errors can be collected in a slice type
-	var diags diag.Diagnostics
-
-	mgwId := d.Get("id").(string)
+	mgwId := d.Id()
 
 	gateway := &client_cmsmgw.GatewayUpdateRequest{
-		ID:                 d.Get("id").(string),
+		ID:                 mgwId,
 		NameTag:            d.Get("name_tag").(string),
 		Tag:                d.Get("tag").(string),
 		MgwSize:            d.Get("mgw_size").(string),
@@ -224,8 +216,7 @@ func resourceGatewayUpdate(ctx context.Context, d *schema.ResourceData, m interf
 			return diag.FromErr(err2)
 		}
 	}
-	resourceGatewayRead(ctx, d, m)
-	return diags
+	return resourceGatewayRead(ctx, d, m)
 }
 
 // ----------------------delete mgw
