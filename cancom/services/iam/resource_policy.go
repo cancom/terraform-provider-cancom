@@ -2,6 +2,7 @@ package iam
 
 import (
 	"context"
+	"fmt"
 	"reflect"
 	"unicode"
 
@@ -16,7 +17,6 @@ func resourcePolicy() *schema.Resource {
 		Description:   "IAM --- Generate a new IAM policy and attach it to users, service users and roles.",
 		CreateContext: resourcePolicyCreate,
 		ReadContext:   resourcePolicyRead,
-		UpdateContext: resourcePolicyUpdate,
 		DeleteContext: resourcePolicyDelete,
 		Schema: map[string]*schema.Schema{
 			"service": {
@@ -37,6 +37,9 @@ If you want to manage policies on a find-grained basis, you can use ` + "`policy
 .`,
 				Type:     schema.TypeList,
 				Required: true,
+				ForceNew: true,
+				MinItems: 1,
+				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"profile": {
@@ -73,26 +76,36 @@ func resourcePolicyCreate(ctx context.Context, d *schema.ResourceData, m interfa
 	var diags diag.Diagnostics
 
 	policy := d.Get("policy").([]interface{})
-	profile := policy[0].(map[string]interface{})["profile"].(string)
-	custom := policy[0].(map[string]interface{})["custom"].(map[string]interface{})
+	if len(policy) == 0 || policy[0] == nil {
+		return diag.Errorf("policy block must be provided")
+	}
+	policyBlock := policy[0].(map[string]interface{})
+	profile := policyBlock["profile"].(string)
+	custom := policyBlock["custom"].(map[string]interface{})
+	service := d.Get("service").(string)
 
-	policyRequest := client_iam.PolicyRequest{}
+	var policyRequest client_iam.PolicyRequest
 
-	if profile != "" {
-		policyMap := getServicePolicyMapFromServiceType(d.Get("service").(string), profile)
-		policyRequest = client_iam.PolicyRequest{
-			Policy:  policyMap,
-			Service: d.Get("service").(string),
-		}
-	} else { // custom policy
+	if len(custom) > 0 { // custom policy takes precedence over profile
 		policyMap := map[string]string{}
 		for k, v := range custom {
 			policyMap[k] = v.(string)
 		}
 		policyRequest = client_iam.PolicyRequest{
 			Policy:  policyMap,
-			Service: d.Get("service").(string),
+			Service: service,
 		}
+	} else if profile != "" {
+		policyMap, err := getServicePolicyMapFromServiceType(service, profile)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		policyRequest = client_iam.PolicyRequest{
+			Policy:  policyMap,
+			Service: service,
+		}
+	} else {
+		return diag.Errorf("either policy.custom or policy.profile must be provided")
 	}
 
 	err = (*client_iam.Client)(c).AssignPolicyToUser(&policyRequest, d.Get("principal").(string))
@@ -106,10 +119,6 @@ func resourcePolicyCreate(ctx context.Context, d *schema.ResourceData, m interfa
 }
 
 func resourcePolicyRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	return nil
-}
-
-func resourcePolicyUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	return nil
 }
 
@@ -136,7 +145,10 @@ func resourcePolicyDelete(ctx context.Context, d *schema.ResourceData, m interfa
 	return diags
 }
 
-func getServicePolicyMapFromServiceType(serviceType string, profile string) map[string]string {
+func getServicePolicyMapFromServiceType(serviceType string, profile string) (map[string]string, error) {
+	if profile != "reader" && profile != "full-access" {
+		return nil, fmt.Errorf("invalid policy profile %q: must be 'reader' or 'full-access'", profile)
+	}
 	policyMap := map[string]string{}
 	switch serviceType {
 	case "ssl-monitoring":
@@ -365,11 +377,16 @@ func getServicePolicyMapFromServiceType(serviceType string, profile string) map[
 		}
 		policyMap = createMapFromStruct(policy)
 
+	default:
+		return nil, fmt.Errorf("unknown service %q for profile-based policy; use policy.custom instead", serviceType)
 	}
-	return policyMap
+	return policyMap, nil
 }
 
 func LowerInitial(s string) string {
+	if s == "" {
+		return ""
+	}
 	r := []rune(s)
 	r[0] = unicode.ToLower(r[0])
 	return string(r)

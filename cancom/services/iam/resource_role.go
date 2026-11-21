@@ -63,8 +63,6 @@ func resourceRoleCreate(ctx context.Context, d *schema.ResourceData, m interface
 		return diag.FromErr(err)
 	}
 
-	var diags diag.Diagnostics
-
 	roleCreateRequest := &client_iam.RoleCreateRequest{
 		Name:        d.Get("name").(string),
 		Description: d.Get("description").(string),
@@ -76,12 +74,9 @@ func resourceRoleCreate(ctx context.Context, d *schema.ResourceData, m interface
 		return diag.FromErr(err)
 	}
 
-	resourceRoleRead(ctx, d, m)
-
 	d.SetId(role.Principal)
 
-	return diags
-
+	return resourceRoleRead(ctx, d, m)
 }
 
 func resourceRoleRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
@@ -113,8 +108,6 @@ func resourceRoleUpdate(ctx context.Context, d *schema.ResourceData, m interface
 		return diag.FromErr(err)
 	}
 
-	var diags diag.Diagnostics
-
 	roleUpdateRequest := &client_iam.RoleUpdateRequest{
 		Description: d.Get("description").(string),
 		Group:       d.Get("group").(string),
@@ -125,9 +118,7 @@ func resourceRoleUpdate(ctx context.Context, d *schema.ResourceData, m interface
 		return diag.FromErr(err)
 	}
 
-	resourceRoleRead(ctx, d, m)
-
-	return diags
+	return resourceRoleRead(ctx, d, m)
 }
 
 func resourceRoleDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {

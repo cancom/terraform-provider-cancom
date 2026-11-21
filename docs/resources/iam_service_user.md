@@ -36,5 +36,6 @@ resource "cancom_iam_service_user" "su" {
 - `created_by` (String) The initial creator of the service user.
 - `id` (String) The ID of this resource.
 - `principal` (String) CRN of the service user.
+- `session` (String, Sensitive) Session token of the service user. Only returned on creation.
 - `session_hash` (String, Deprecated) Deprecated. Must not be used.
 - `tenant` (String) Tenant that the service user belongs to.
