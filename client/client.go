@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-const HostURL string = "https://service-registry.portal.cancom.dev/v1"
+const HostURL string = "https://service-registry.portal.cancom.io"
 
 type CcpClient struct {
 	client      *http.Client
@@ -78,7 +78,9 @@ func NewClient(host, token *string, role string) (*CcpClient, error) {
 
 	// if role is set, initialize the client and assume role
 	if role != "" {
-		c.initialize()
+		if err := c.initialize(); err != nil {
+			return nil, err
+		}
 		iamClient, err := c.getSingleService("iam")
 		if err != nil {
 			return nil, err
@@ -117,19 +119,46 @@ func newHttpClient(host string, tp *tokenProvider) *Client {
 }
 
 func (c *CcpClient) WithToken(token string) *CcpClient {
-	serviceMap := map[string]*Client{}
+	c.mu.Lock()
+	defer c.mu.Unlock()
 
+	origProvider := &tokenProvider{
+		mu:    &sync.Mutex{},
+		token: token,
+	}
+
+	tp := &tokenProvider{
+		mu:    &sync.Mutex{},
+		token: token,
+		role:  c.role,
+	}
+	if c.role != "" && c.tp != nil && c.tp.iamClient != nil {
+		tp.iamClient = newHttpClient(c.tp.iamClient.HostURL, origProvider)
+	}
+
+	serviceURLs := make(map[string]string, len(c.serviceURLs))
+	for k, v := range c.serviceURLs {
+		serviceURLs[k] = v
+	}
+
+	serviceMap := make(map[string]*Client, len(c.services))
 	for name, service := range c.services {
-		serviceMap[name] = newHttpClient(service.HostURL, c.tp)
+		provider := tp
+		if name == "service-registry" {
+			provider = origProvider
+		}
+		serviceMap[name] = newHttpClient(service.HostURL, provider)
 	}
 
 	return &CcpClient{
-		client:      c.client,
-		serviceURLs: c.serviceURLs,
+		client:      &http.Client{Timeout: 2 * time.Minute},
+		serviceURLs: serviceURLs,
 		token:       token,
-		mu:          c.mu,
+		role:        c.role,
+		mu:          &sync.Mutex{},
 		initialized: c.initialized,
 		services:    serviceMap,
+		tp:          tp,
 	}
 }
 
@@ -167,7 +196,7 @@ func (c *Client) DoRequest(req *http.Request) ([]byte, error) {
 		return nil, err
 	}
 
-	req.Header.Add("Authorization", "Bearer "+token)
+	req.Header.Set("Authorization", "Bearer "+token)
 
 	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
@@ -197,23 +226,16 @@ func (c *Client) DoRequestWithRetry(req *http.Request, policy func(resp *http.Re
 		}
 	}
 
-	token, err := c.tp.GetToken()
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Authorization", "Bearer "+token)
-
 	var bodyGetter = func() io.ReadCloser {
 		return http.NoBody
 	}
 
 	if req.Body != nil {
 		buf, err := io.ReadAll(req.Body)
+		req.Body.Close()
 		if err != nil {
 			return nil, err
 		}
-		defer req.Body.Close()
 
 		bodyGetter = func() io.ReadCloser {
 			return io.NopCloser(bytes.NewReader(buf))
@@ -233,15 +255,21 @@ func (c *Client) DoRequestWithRetry(req *http.Request, policy func(resp *http.Re
 		if err != nil {
 			return nil, err
 		}
-		defer resp.Body.Close()
 
 		body, err := io.ReadAll(resp.Body)
+		resp.Body.Close()
 		if err != nil {
 			return nil, err
 		}
 
 		if policy(resp) {
-			time.Sleep(time.Duration(rand.Intn(16)+15) * time.Second)
+			timer := time.NewTimer(time.Duration(rand.Intn(16)+15) * time.Second)
+			select {
+			case <-req.Context().Done():
+				timer.Stop()
+				return nil, req.Context().Err()
+			case <-timer.C:
+			}
 			continue
 		}
 
