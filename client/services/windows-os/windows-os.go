@@ -43,10 +43,10 @@ func (c *Client) CreateWindowsDeployment(windowsOSDeployment *WindowsOS_Deplyome
 		return nil, err
 	}
 	req, err := http.NewRequest("POST", fmt.Sprintf("%s/%s", c.HostURL, urlPath), bytes.NewBuffer(body))
-	req.Header.Add("Content-Type", "application/json")
 	if err != nil {
 		return nil, err
 	}
+	req.Header.Add("Content-Type", "application/json")
 
 	resp, err := (*client.Client)(c).DoRequest(req)
 	if err != nil {
@@ -75,6 +75,9 @@ func (c *Client) CreateWindowsDeploymentStatus(id string) (*WindowsOS_Deplyoment
 	//The deployment itself is run by the CANCOM Windows OS Service backend.
 	for {
 		req, err := http.NewRequest("GET", fmt.Sprintf("%s/%s/%s/status", c.HostURL, urlPath, id), nil)
+		if err != nil {
+			return nil, err
+		}
 
 		req.Header.Add("Content-Type", "application/json")
 
@@ -122,6 +125,9 @@ func (c *Client) GetWindowsDeploymentStatus(id string) (*WindowsOS_Deplyoment, e
 	//The deployment itself is run by the CANCOM Windows OS Service backend.
 	for {
 		req, err := http.NewRequest("GET", fmt.Sprintf("%s/%s/%s/status", c.HostURL, urlPath, id), nil)
+		if err != nil {
+			return nil, err
+		}
 
 		req.Header.Add("Content-Type", "application/json")
 
@@ -161,16 +167,16 @@ func (c *Client) UpdateWindowsOsDeployment(id string, windowsOSDeployment *Windo
 		return nil, err
 	}
 
-	currentWindowsOSDeployment, getterError := c.GetWindowsDeployment(windowsOSDeployment.Id)
+	currentWindowsOSDeployment, getterError := c.GetWindowsDeployment(id)
 	if getterError != nil {
-		return nil, err
+		return nil, getterError
 	}
 
 	if currentWindowsOSDeployment.CoustomerEnvironmentID != windowsOSDeployment.CoustomerEnvironmentID {
-		return nil, err
+		return nil, fmt.Errorf("customerEnvironmentID cannot be changed after creation")
 	}
 	if currentWindowsOSDeployment.Computer.Role != windowsOSDeployment.Computer.Role {
-		return nil, err
+		return nil, fmt.Errorf("role cannot be changed after creation")
 	}
 
 	req, err := http.NewRequest("PUT", fmt.Sprintf("%s/%s/%s", c.HostURL, urlPath, id), bytes.NewBuffer(body))

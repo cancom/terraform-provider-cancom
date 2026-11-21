@@ -3,7 +3,6 @@ package windowsos
 import (
 	"context"
 	"fmt"
-	"regexp"
 	"slices"
 	"time"
 
@@ -29,6 +28,7 @@ The required` + " `deployment_id` " + `represents the id of` + " `cancom_windows
 			"deployment_id": {
 				Type:        schema.TypeString,
 				Required:    true,
+				ForceNew:    true,
 				Description: "ID of the deployment object",
 			},
 			"status": {
@@ -43,7 +43,7 @@ The required` + " `deployment_id` " + `represents the id of` + " `cancom_windows
 				Description: `The errorhandling of deployment errors is configurable. If the output should be just warining and no interruption of the process is needed, please set the value to warning.
 
 				!> For multi staged deployments the value error is highly recommended.`,
-				ValidateDiagFunc: validation.ToDiagFunc(validation.StringMatch(regexp.MustCompile("error|warning"), "errorhandling may only contain error or warning")),
+				ValidateDiagFunc: validation.ToDiagFunc(validation.StringInSlice([]string{"error", "warning"}, false)),
 			},
 		},
 	}
@@ -64,6 +64,9 @@ func resourceWindowsOSDeploymentProgressCreate(ctx context.Context, d *schema.Re
 	d.SetId(deployment_id)
 	d.Set("status", "started")
 	for {
+		if err := ctx.Err(); err != nil {
+			return diag.FromErr(err)
+		}
 		resp, err := (*client_windowsos.Client)(c).GetWindowsDeploymentStatus(deployment_id)
 		if err != nil {
 			d.Set("status", "Failed")
@@ -89,7 +92,13 @@ func resourceWindowsOSDeploymentProgressCreate(ctx context.Context, d *schema.Re
 			d.Set("status", "Succeded")
 			return diags
 		}
-		time.Sleep(10 * time.Second) // sleep for 30 seconds to aviod active waiting
+		timer := time.NewTimer(10 * time.Second)
+		select {
+		case <-ctx.Done():
+			timer.Stop()
+			return diag.FromErr(ctx.Err())
+		case <-timer.C:
+		}
 	}
 }
 
