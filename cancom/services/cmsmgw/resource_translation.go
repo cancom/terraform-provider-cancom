@@ -2,7 +2,9 @@ package cmsmgw
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"net/http"
 	"strconv"
 	"time"
 
@@ -60,9 +62,6 @@ func resourceTranslationCreate(ctx context.Context, d *schema.ResourceData, m in
 		return diag.FromErr(err)
 	}
 
-	// Warning or errors can be collected in a slice type
-	var diags diag.Diagnostics
-
 	translation := &client_cmsmgw.TranslationCreateRequest{
 		CustomerIp: d.Get("customer_ip").(string),
 		MgwId:      d.Get("mgw_id").(string),
@@ -103,9 +102,7 @@ func resourceTranslationCreate(ctx context.Context, d *schema.ResourceData, m in
 
 	d.SetId(resp.ID)
 
-	resourceTranslationRead(ctx, d, m)
-
-	return diags
+	return resourceTranslationRead(ctx, d, m)
 }
 
 func resourceTranslationRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
@@ -141,10 +138,7 @@ func resourceTranslationUpdate(ctx context.Context, d *schema.ResourceData, m in
 		return diag.FromErr(err)
 	}
 
-	// Warning or errors can be collected in a slice type
-	var diags diag.Diagnostics
-
-	translationId := d.Get("id").(string)
+	translationId := d.Id()
 
 	translation := &client_cmsmgw.TranslationUpdateRequest{
 		CustomerIp: d.Get("customer_ip").(string),
@@ -190,9 +184,7 @@ func resourceTranslationUpdate(ctx context.Context, d *schema.ResourceData, m in
 
 	d.SetId(resp.ID)
 
-	resourceTranslationRead(ctx, d, m)
-
-	return diags
+	return resourceTranslationRead(ctx, d, m)
 }
 
 func resourceTranslationDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
@@ -204,7 +196,7 @@ func resourceTranslationDelete(ctx context.Context, d *schema.ResourceData, m in
 	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics
 
-	translationId := d.Get("id").(string)
+	translationId := d.Id()
 
 	err = (*client_cmsmgw.Client)(c).DeleteTranslation(translationId)
 	if err != nil {
@@ -213,27 +205,35 @@ func resourceTranslationDelete(ctx context.Context, d *schema.ResourceData, m in
 
 	resp, err2 := (*client_cmsmgw.Client)(c).GetTranslation(translationId)
 	if err2 != nil {
-		resp.DeploymentState = "UNKNOWN_ERROR"
+		var httpErr *client.HTTPError
+		if errors.As(err2, &httpErr) && httpErr.StatusCode == http.StatusNotFound {
+			d.SetId("")
+			return diags
+		}
+		return diag.FromErr(err2)
 	}
 	i := 1
 	for resp.DeploymentState == "DEPLOYED" || resp.DeploymentState == "DELETE_IN_PROGRESS" {
-		time.Sleep(15 * time.Second)
+		timer := time.NewTimer(15 * time.Second)
+		select {
+		case <-ctx.Done():
+			timer.Stop()
+			return diag.FromErr(ctx.Err())
+		case <-timer.C:
+		}
 		resp, err2 = (*client_cmsmgw.Client)(c).GetTranslation(translationId)
 		if err2 != nil {
-			tflog.Info(ctx, "Finished Deleting Translation, result: "+err2.Error())
-			//diags = append(diags, diag.Diagnostic{
-			//	Severity: diag.Warning,
-			//	Summary:  "Finished Deleting Translation",
-			//	Detail:   err2.Error(),
-			//})
-			d.SetId("")
-			return diags
-		} else {
-			tflog.Info(ctx, "Deleting Translation, Iteration: "+strconv.Itoa(i)+" Status: "+resp.DeploymentState)
+			var httpErr *client.HTTPError
+			if errors.As(err2, &httpErr) && httpErr.StatusCode == http.StatusNotFound {
+				tflog.Info(ctx, "Finished Deleting Translation, result: "+err2.Error())
+				d.SetId("")
+				return diags
+			}
+			return diag.FromErr(err2)
 		}
+		tflog.Info(ctx, "Deleting Translation, Iteration: "+strconv.Itoa(i)+" Status: "+resp.DeploymentState)
 		i++
 		if i >= 40 {
-			resp.DeploymentState = "UNKNOWN_ERROR"
 			diags = append(diags, diag.Diagnostic{
 				Severity: diag.Error,
 				Summary:  "Timeout while waiting for deletion to complete",

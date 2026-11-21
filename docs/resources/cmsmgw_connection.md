@@ -51,8 +51,8 @@ resource "cancom_cmsmgw_connection" "conn_tf-01" {
 - `cancom_networks` (List of String)
 - `customer_networks` (List of String)
 - `customer_secondary_gw_ip` (String)
-- `ipsec_psk_a` (String)
-- `ipsec_psk_b` (String)
+- `ipsec_psk_a` (String, Sensitive)
+- `ipsec_psk_b` (String, Sensitive)
 - `name_tag` (String)
 
 ### Read-Only

@@ -110,8 +110,6 @@ func resourceNetworkCreate(ctx context.Context, d *schema.ResourceData, m interf
 		return diag.FromErr(err)
 	}
 
-	var diags diag.Diagnostics
-
 	network := &client_ipam.NetworkCreateRequest{
 		SupernetId:  d.Get("supernet_id").(string),
 		Request:     d.Get("request").(string),
@@ -129,11 +127,12 @@ func resourceNetworkCreate(ctx context.Context, d *schema.ResourceData, m interf
 
 	d.SetId(id)
 
-	// if hostAssign is true we must enable ist in an update to th network we just assigned
+	// Newly assigned networks default to hostAssign=true on the backend; disable it if configured false.
 	if !d.Get("host_assign").(bool) {
 		update := &client_ipam.NetworkUpdateRequest{
-			HostAssign: false,
-			//Source:    "CANCOM-TF",
+			NameTag:     d.Get("name_tag").(string),
+			Description: d.Get("description").(string),
+			HostAssign:  false,
 		}
 		_, update_err := (*client_ipam.Client)(c).UpdateNetwork(id, update)
 		if update_err != nil {
@@ -141,10 +140,7 @@ func resourceNetworkCreate(ctx context.Context, d *schema.ResourceData, m interf
 		}
 	}
 
-	resourceNetworkRead(ctx, d, m)
-
-	return diags
-
+	return resourceNetworkRead(ctx, d, m)
 }
 
 func resourceNetworkUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
@@ -152,8 +148,6 @@ func resourceNetworkUpdate(ctx context.Context, d *schema.ResourceData, m interf
 	if err != nil {
 		return diag.FromErr(err)
 	}
-
-	var diags diag.Diagnostics
 
 	id := d.Id()
 
@@ -171,9 +165,7 @@ func resourceNetworkUpdate(ctx context.Context, d *schema.ResourceData, m interf
 
 	d.SetId(id)
 
-	resourceNetworkRead(ctx, d, m)
-
-	return diags
+	return resourceNetworkRead(ctx, d, m)
 }
 
 func resourceNetworkDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
@@ -188,8 +180,9 @@ func resourceNetworkDelete(ctx context.Context, d *schema.ResourceData, m interf
 
 	// first try to disable host assignment if it is enabled.
 	network := &client_ipam.NetworkUpdateRequest{
-		HostAssign: false,
-		//Source:    "CANCOM-TF",
+		NameTag:     d.Get("name_tag").(string),
+		Description: d.Get("description").(string),
+		HostAssign:  false,
 	}
 	_, err = (*client_ipam.Client)(c).UpdateNetwork(id, network)
 	if err != nil {

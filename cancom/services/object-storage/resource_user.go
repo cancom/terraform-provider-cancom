@@ -53,6 +53,7 @@ We recommend using the ` + "`jsonencode`" + ` TerraForm function to convert your
 				Required:         true,
 				Description:      "The IAM permission document.",
 				ValidateDiagFunc: permissionValidator,
+				DiffSuppressFunc: suppressEquivalentJSONDiffs,
 			},
 			"include_credentials": {
 				Type:        schema.TypeBool,
@@ -89,11 +90,22 @@ func permissionValidator(data interface{}, path cty.Path) diag.Diagnostics {
 		return diag.Errorf("the policy must contain a statement")
 	}
 
-	if reflect.TypeOf(statement).Kind() != reflect.Slice {
+	if statement == nil || reflect.TypeOf(statement).Kind() != reflect.Slice {
 		return diag.Errorf("the statement in the permission policy must be an array")
 	}
 
 	return nil
+}
+
+func suppressEquivalentJSONDiffs(k, old, new string, d *schema.ResourceData) bool {
+	var oldVal, newVal interface{}
+	if err := json.Unmarshal([]byte(old), &oldVal); err != nil {
+		return false
+	}
+	if err := json.Unmarshal([]byte(new), &newVal); err != nil {
+		return false
+	}
+	return reflect.DeepEqual(oldVal, newVal)
 }
 
 func resourceUserRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
@@ -116,7 +128,9 @@ func resourceUserRead(ctx context.Context, d *schema.ResourceData, m interface{}
 
 	d.Set("username", resp.Username)
 	d.Set("description", resp.Description)
-	d.Set("permissions", policy)
+	if err := d.Set("permissions", string(policy)); err != nil {
+		return diag.FromErr(err)
+	}
 
 	return diags
 }
@@ -146,10 +160,17 @@ func resourceUserCreate(ctx context.Context, d *schema.ResourceData, m interface
 		return diag.FromErr(err)
 	}
 
+	policyBytes, err := json.Marshal(resp.Permissions)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
 	d.SetId(resp.Id)
 	d.Set("username", resp.Username)
 	d.Set("description", resp.Description)
-	d.Set("permissions", resp.Permissions)
+	if err := d.Set("permissions", string(policyBytes)); err != nil {
+		return diag.FromErr(err)
+	}
 
 	include_credentials := d.Get("include_credentials").(bool)
 
@@ -207,11 +228,18 @@ func resourceUserUpdate(ctx context.Context, d *schema.ResourceData, m interface
 		return diag.FromErr(err)
 	}
 
+	policyBytes, err := json.Marshal(resp.Permissions)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
 	d.SetId(id)
 
 	d.Set("username", resp.Username)
 	d.Set("description", resp.Description)
-	d.Set("permissions", resp.Permissions)
+	if err := d.Set("permissions", string(policyBytes)); err != nil {
+		return diag.FromErr(err)
+	}
 
 	return diags
 }

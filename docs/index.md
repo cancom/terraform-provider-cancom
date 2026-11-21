@@ -68,4 +68,4 @@ provider "cancom" {
 
 - `role` (String) Role to assume with the provided token. Resources are created with this role instead of the original principal
 - `service_registry` (String) Service Registry to use for endpoint discovery
-- `token` (String) API Token retrieved from [https://portal.cancom.io](https://portal.cancom.io)
+- `token` (String, Sensitive) API Token retrieved from [https://portal.cancom.io](https://portal.cancom.io)

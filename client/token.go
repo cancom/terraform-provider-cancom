@@ -1,6 +1,7 @@
 package client
 
 import (
+	"bytes"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -58,11 +59,25 @@ func (t *tokenProvider) GetToken() (string, error) {
 	defer t.mu.Unlock()
 
 	if time.Now().Unix() > t.expireTime {
-		// need to refresh token
-		req, err := http.NewRequest("POST", fmt.Sprintf("%s/v1/AssumeRole", t.iamClient.HostURL), strings.NewReader(fmt.Sprintf(`{"role": "%s"}`, t.role)))
+		if t.iamClient == nil {
+			return "", fmt.Errorf("iam client is not initialized for role assumption")
+		}
+
+		payload, err := json.Marshal(struct {
+			Role string `json:"role"`
+		}{
+			Role: t.role,
+		})
 		if err != nil {
 			return "", err
 		}
+
+		// need to refresh token
+		req, err := http.NewRequest("POST", fmt.Sprintf("%s/v1/AssumeRole", t.iamClient.HostURL), bytes.NewReader(payload))
+		if err != nil {
+			return "", err
+		}
+		req.Header.Set("Content-Type", "application/json")
 
 		resp, err := t.iamClient.DoRequest(req)
 		if err != nil {

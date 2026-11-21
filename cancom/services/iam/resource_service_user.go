@@ -43,6 +43,12 @@ func resourceServiceUser() *schema.Resource {
 				Computed:    true,
 				Description: "Tenant that the service user belongs to.",
 			},
+			"session": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Sensitive:   true,
+				Description: "Session token of the service user. Only returned on creation.",
+			},
 			"session_hash": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -69,8 +75,6 @@ func resourceServiceUserCreate(ctx context.Context, d *schema.ResourceData, m in
 		return diag.FromErr(err)
 	}
 
-	var diags diag.Diagnostics
-
 	userCreateRequest := client_iam.ServiceUserCreateRequest{
 		Name:        d.Get("name").(string),
 		Description: d.Get("description").(string),
@@ -82,17 +86,12 @@ func resourceServiceUserCreate(ctx context.Context, d *schema.ResourceData, m in
 		return diag.Errorf("Error creating user: %s", err)
 	}
 
-	diags = append(diags, diag.Diagnostic{
-		Severity: diag.Warning,
-		Summary:  "ServiceUser Session Token - ATTENTION: YOU CAN ONLY SEE THIS ONCE",
-		Detail:   "Token: " + serviceUser.Session,
-	})
-
-	resourceServiceUserRead(ctx, d, m)
-
 	d.SetId(serviceUser.Principal)
+	if err := d.Set("session", serviceUser.Session); err != nil {
+		return diag.FromErr(err)
+	}
 
-	return diags
+	return resourceServiceUserRead(ctx, d, m)
 }
 
 func resourceServiceUserRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
@@ -125,8 +124,6 @@ func resourceServiceUserUpdate(ctx context.Context, d *schema.ResourceData, m in
 		return diag.FromErr(err)
 	}
 
-	var diags diag.Diagnostics
-
 	serviceUserUpdateRequest := client_iam.ServiceUserUpdateRequest{
 		Description: d.Get("description").(string),
 		Group:       d.Get("group").(string),
@@ -137,9 +134,7 @@ func resourceServiceUserUpdate(ctx context.Context, d *schema.ResourceData, m in
 		return diag.Errorf("Error updating user: %s", err)
 	}
 
-	resourceServiceUserRead(ctx, d, m)
-
-	return diags
+	return resourceServiceUserRead(ctx, d, m)
 }
 
 func resourceServiceUserDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {

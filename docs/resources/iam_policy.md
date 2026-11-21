@@ -44,7 +44,7 @@ resource "cancom_iam_policy" "test_policy_azure-app-management" {
 
 ### Required
 
-- `policy` (Block List, Min: 1) You can choose either a profile or a custom policy.   
+- `policy` (Block List, Min: 1, Max: 1) You can choose either a profile or a custom policy.   
 This block allows to setup policies using predefined profiles (`policy.profile`). Profile can either be `full-access` or `reader`, providing either administrative access to the service, or read-only access.  
 If you want to manage policies on a find-grained basis, you can use `policy.custom` instead.
 

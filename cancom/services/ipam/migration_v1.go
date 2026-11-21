@@ -75,11 +75,15 @@ func instanceUpgradeV0() schema.StateUpgrader {
 			}
 
 			if val, ok := rawState["release_wait_time"].(string); ok {
-				i, err := strconv.Atoi(val)
-				if err != nil {
-					return rawState, fmt.Errorf("failed to convert release_wait_time from string to int: %w", err)
+				if val != "" {
+					i, err := strconv.Atoi(val)
+					if err != nil {
+						return rawState, fmt.Errorf("failed to convert release_wait_time from string to int: %w", err)
+					}
+					rawState["release_wait_time"] = i
+				} else {
+					rawState["release_wait_time"] = 0
 				}
-				rawState["release_wait_time"] = i
 			}
 
 			return rawState, nil

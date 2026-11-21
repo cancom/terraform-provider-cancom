@@ -2,7 +2,9 @@ package cmsmgw
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"net/http"
 	"strconv"
 	"time"
 
@@ -55,15 +57,17 @@ func resourceConnection() *schema.Resource {
 			},
 			// if this is not provided the backend will generate a secret
 			"ipsec_psk_a": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
+				Type:      schema.TypeString,
+				Computed:  true,
+				Optional:  true,
+				Sensitive: true,
 			},
 			// if this is not provided the backend will generate a secret
 			"ipsec_psk_b": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
+				Type:      schema.TypeString,
+				Computed:  true,
+				Optional:  true,
+				Sensitive: true,
 			},
 			"cancom_networks": {
 				Type:     schema.TypeList,
@@ -95,8 +99,6 @@ func resourceConnectionCreate(ctx context.Context, d *schema.ResourceData, m int
 	}
 
 	// Warning or errors can be collected in a slice type
-	var diags diag.Diagnostics
-
 	temp1 := d.Get("cancom_networks").([]interface{})
 	var cancomNetworks []string
 	for _, temp1 := range temp1 {
@@ -126,8 +128,6 @@ func resourceConnectionCreate(ctx context.Context, d *schema.ResourceData, m int
 		return diag.FromErr(err)
 	}
 	connectionId := resp.ID
-	// this is to give dynamo time to get consistant
-	//time.Sleep(60 * time.Second)
 	resp.Status = "PENDING_DEPLOYMENT"
 	err_count := 1
 	i := 1
@@ -170,9 +170,7 @@ func resourceConnectionCreate(ctx context.Context, d *schema.ResourceData, m int
 
 	d.SetId(resp.ID)
 
-	resourceConnectionRead(ctx, d, m)
-
-	return diags
+	return resourceConnectionRead(ctx, d, m)
 }
 
 // --------------------------Read Connection------------------------------
@@ -185,7 +183,7 @@ func resourceConnectionRead(ctx context.Context, d *schema.ResourceData, m inter
 	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics
 
-	connectionId := d.Get("id").(string)
+	connectionId := d.Id()
 
 	//order, err := c.GetOrder(orderId)
 	resp, err := (*client_cmsmgw.Client)(c).GetConnection(connectionId)
@@ -215,10 +213,7 @@ func resourceConnectionUpdate(ctx context.Context, d *schema.ResourceData, m int
 		return diag.FromErr(err)
 	}
 
-	// Warning or errors can be collected in a slice type
-	var diags diag.Diagnostics
-
-	connectionId := d.Get("id").(string)
+	connectionId := d.Id()
 
 	temp1 := d.Get("cancom_networks").([]interface{})
 	var cancomNetworks []string
@@ -250,9 +245,7 @@ func resourceConnectionUpdate(ctx context.Context, d *schema.ResourceData, m int
 		return diag.FromErr(err)
 	}
 	connectionId = resp.ID
-	// this is to give dynamo time to get consistant
-	//time.Sleep(60 * time.Second)
-	resp.Status = "PENDING_DEPLOYMENT"
+	resp.Status = "UPDATE_IN_PROGRESS"
 	err_count := 1
 	i := 1
 	for resp.Status != "DEPLOYED" {
@@ -287,9 +280,7 @@ func resourceConnectionUpdate(ctx context.Context, d *schema.ResourceData, m int
 
 	d.SetId(resp.ID)
 
-	resourceConnectionRead(ctx, d, m)
-
-	return diags
+	return resourceConnectionRead(ctx, d, m)
 }
 
 // --------------------------Delete Connection------------------------------
@@ -302,8 +293,7 @@ func resourceConnectionDelete(ctx context.Context, d *schema.ResourceData, m int
 	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics
 
-	//mgwId := d.Id()
-	connectionId := d.Get("id").(string)
+	connectionId := d.Id()
 
 	err = (*client_cmsmgw.Client)(c).DeleteConnection(connectionId)
 	if err != nil {
@@ -312,27 +302,35 @@ func resourceConnectionDelete(ctx context.Context, d *schema.ResourceData, m int
 
 	resp, err2 := (*client_cmsmgw.Client)(c).GetConnection(connectionId)
 	if err2 != nil {
-		resp.Status = "UNKNOWN_ERROR"
+		var httpErr *client.HTTPError
+		if errors.As(err2, &httpErr) && httpErr.StatusCode == http.StatusNotFound {
+			d.SetId("")
+			return diags
+		}
+		return diag.FromErr(err2)
 	}
 	i := 1
 	for resp.Status == "DEPLOYED" || resp.Status == "DELETE_IN_PROGRESS" {
-		time.Sleep(15 * time.Second)
+		timer := time.NewTimer(15 * time.Second)
+		select {
+		case <-ctx.Done():
+			timer.Stop()
+			return diag.FromErr(ctx.Err())
+		case <-timer.C:
+		}
 		resp, err2 = (*client_cmsmgw.Client)(c).GetConnection(connectionId)
 		if err2 != nil {
-			tflog.Info(ctx, "Finished Deleting connection, result: "+err2.Error())
-			//diags = append(diags, diag.Diagnostic{
-			//	Severity: diag.Warning,
-			//	Summary:  "Finished Deleting Translation",
-			//	Detail:   err2.Error(),
-			//})
-			d.SetId("")
-			return diags
-		} else {
-			tflog.Info(ctx, "Deleting Connection, Iteration: "+strconv.Itoa(i)+" Status: "+resp.Status)
+			var httpErr *client.HTTPError
+			if errors.As(err2, &httpErr) && httpErr.StatusCode == http.StatusNotFound {
+				tflog.Info(ctx, "Finished Deleting connection, result: "+err2.Error())
+				d.SetId("")
+				return diags
+			}
+			return diag.FromErr(err2)
 		}
+		tflog.Info(ctx, "Deleting Connection, Iteration: "+strconv.Itoa(i)+" Status: "+resp.Status)
 		i++
 		if i >= 40 {
-			resp.Status = "UNKNOWN_ERROR"
 			diags = append(diags, diag.Diagnostic{
 				Severity: diag.Error,
 				Summary:  "Timeout while waiting for deletion to complete",

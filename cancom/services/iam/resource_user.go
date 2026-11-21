@@ -63,8 +63,6 @@ func resourceUserCreate(ctx context.Context, d *schema.ResourceData, m interface
 		return diag.FromErr(err)
 	}
 
-	var diags diag.Diagnostics
-
 	userCreateRequest := client_iam.UserCreateRequest{
 		Name:        d.Get("name").(string),
 		Description: d.Get("description").(string),
@@ -76,11 +74,9 @@ func resourceUserCreate(ctx context.Context, d *schema.ResourceData, m interface
 		return diag.FromErr(err)
 	}
 
-	resourceUserRead(ctx, d, m)
-
 	d.SetId(resp.Principal)
 
-	return diags
+	return resourceUserRead(ctx, d, m)
 }
 
 func resourceUserRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
@@ -116,8 +112,6 @@ func resourceUserUpdate(ctx context.Context, d *schema.ResourceData, m interface
 		return diag.FromErr(err)
 	}
 
-	var diags diag.Diagnostics
-
 	user := client_iam.User{
 		Principal: d.Id(),
 	}
@@ -132,9 +126,7 @@ func resourceUserUpdate(ctx context.Context, d *schema.ResourceData, m interface
 		return diag.FromErr(err)
 	}
 
-	resourceUserRead(ctx, d, m)
-
-	return diags
+	return resourceUserRead(ctx, d, m)
 }
 
 func resourceUserDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
