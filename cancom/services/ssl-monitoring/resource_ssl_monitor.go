@@ -118,8 +118,6 @@ func resourceSslMonitorCreate(ctx context.Context, d *schema.ResourceData, m int
 		return diag.FromErr(err)
 	}
 
-	var diags diag.Diagnostics
-
 	sslMonitorRequest := client_sslmonitoring.SslMonitorCreateRequest{
 		DomainName:           d.Get("domain_name").(string),
 		Tenant:               d.Get("tenant").(string),
@@ -147,8 +145,7 @@ func resourceSslMonitorCreate(ctx context.Context, d *schema.ResourceData, m int
 		}
 	}
 
-	return diags
-
+	return resourceSslMonitorRead(ctx, d, m)
 }
 
 func resourceSslMonitorRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
@@ -195,8 +192,6 @@ func resourceSslMonitorUpdate(ctx context.Context, d *schema.ResourceData, m int
 		return diag.FromErr(err)
 	}
 
-	var diags diag.Diagnostics
-
 	sslMonitorRequest := client_sslmonitoring.SslMonitor{
 		ID: d.Id(),
 	}
@@ -219,18 +214,9 @@ func resourceSslMonitorUpdate(ctx context.Context, d *schema.ResourceData, m int
 		return diag.FromErr(err)
 	}
 
-	d.Set("last_updated_at", resp.LastUpdatedAt)
-
 	d.SetId(resp.ID)
 
-	if d.Get("auto_scan").(bool) {
-		err := (*client_sslmonitoring.Client)(c).StartSslScan(resp.ID)
-		if err != nil {
-			return diag.FromErr(err)
-		}
-	}
-
-	return diags
+	return resourceSslMonitorRead(ctx, d, m)
 }
 
 func resourceSslMonitorDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
