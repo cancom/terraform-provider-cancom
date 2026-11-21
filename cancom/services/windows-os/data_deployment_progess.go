@@ -40,7 +40,7 @@ func WindowsOSDeploymentProgressRead(ctx context.Context, d *schema.ResourceData
 	}
 	_, stateExists := d.GetOk("state")
 	tflog.Debug(ctx, "Started Windows Deployment Progress")
-	tflog.Debug(ctx, fmt.Sprintf("State is %b", stateExists))
+	tflog.Debug(ctx, fmt.Sprintf("State is %t", stateExists))
 	// if a status is already set, we can avoid calling the endpoint again.
 	if (d.Get("state").(string)) == "Finished" {
 		tflog.Debug(ctx, "Found already state finished")

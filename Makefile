@@ -36,9 +36,11 @@ install: build
 	mkdir -p ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/${OS_ARCH}
 	cp $(BIN)/${BINARY} ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/${OS_ARCH}
 
-test: 
-	go test -i $(TEST) || exit 1
-	echo $(TEST) | xargs -t -n4 go test $(TESTARGS) -timeout=30s -parallel=4
+test:
+	go test -race $(TESTARGS) -timeout=60s -parallel=4 ./...
+
+vet:
+	go vet ./...
 
 testacc: 
 	TF_ACC=1 go test $(TEST) -v $(TESTARGS) -timeout 120m
@@ -55,4 +57,4 @@ validate-docs: $(BIN)/tfplugindocs
 clean:
 	rm -rf ./bin
 
-.PHONY: build testacc fmt validate-docs generate-docs clean
+.PHONY: build release install test vet testacc fmt validate-docs generate-docs clean
